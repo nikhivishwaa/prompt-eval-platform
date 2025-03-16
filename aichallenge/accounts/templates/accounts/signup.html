@@ -1,104 +1,89 @@
-{% extends 'accounts/base.html' %}
-
+{% extends 'round1/base.html' %}
 {% load static %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card signup-card">
+        <h2 class="signup-title">Sign Up for AI Prompt Combat</h2>
 
-{% block head %}<title>Signup: Create account with Dentify AI to try out our product</title>{% endblock %}
-
-{% block body %}
-<div class="flex flex-col justify-start max-[357px]:w-[96%] max-[357px]:mx-auto">
-    <nav class="bg-[white] text-black nav-home">
-        <a href="/">
-            <div class="flex gap-1 items-end">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z" />
-                </svg>
-
-                <span>Home</span>
-            </div>
-        </a>
-    </nav>
-    <div class="wrapper min-[400px]:w-[450px] w-[100%]">
-        <div class="title-text">
-            <div class="title signup">Signup to Dentify AI</div>
+        {% if messages %}
+        <div class="alert">
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
         </div>
-        <div class="form-container">
-            <div class="slide-controls">
-                <input type="radio" name="slide" id="login">
-                <input type="radio" name="slide" id="signup" checked>
-                <label id="loginForm" for="login" class="slide login">Login</label>
-                <label id="signupForm" for="signup" class="slide signup">Signup</label>
-                <div class="slider-tab"></div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'account:signup' %}" onsubmit="return checkSignupForm()">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label for="name">First Name</label>
+                <input type="text" id="fname" name="fname" placeholder="Enter your first name" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="fname_error"></span>
+
             </div>
-            {% if messages %}
-            <section class="messages mt-1">
-                {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible rounded-[6px] py-[8px] fade show"
-                    role="alert">
-                    <strong>{{ message.tags|capfirst }} :</strong> {{ message }}
-                    <button type="button" class="btn-close" style="padding-top: 8px !important;" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+            <div class="input-group">
+                <label for="name">Last Name</label>
+                <input type="text" id="lname" name="lname" placeholder="Enter your last name">
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="lname_error"></span>
+            </div>
+
+            <div class="input-group">
+                <label for="gender">Gender</label>
+                <div id="gender" class="flex justify-start gap-10">
+                    <span class="flex gap-2 justify-center items-baseline">
+                        <input type="radio" id="male" name="gender" value="m">
+                        <label for="male" class="font-normal text-[14px]">Male</label>
+
+                    </span>
+                    <span class="flex gap-2 justify-center items-baseline">
+                        <input type="radio" id="female" name="gender" value="f">
+                        <label for="female" class="font-normal text-[14px]">Female</label>
+
+                    </span>
                 </div>
-                {% endfor %}
-            </section>
-            {% endif %}
-            <div class="form-inner">
-                <form action="{% url 'signup' %}" method="post" class="signup" onsubmit="return checkSignupForm()">
-                    {% csrf_token %}
-                    <div class="field">
-                        <input id="fname" name="first_name" type="text" value="{{first_name}}" placeholder="First Name"
-                            minlength="3" required>
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="fname_error"></span>
-
-                    </div>
-                    <div class="field">
-                        <input id="lname" name="last_name" type="text" value="{{last_name}}" placeholder="Last Name">
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="lname_error"></span>
-                    </div>
-                    <div class="field">
-                        <input id="email" name="email" type="email" value="{{email}}" placeholder="Email Address"
-                            required>
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="email_error"></span>
-                    </div>
-                    <div class="field">
-                        <input id="phone" name="phone" type="tel" value="{{phone}}"
-                            placeholder="Phone Number" maxlength="10" minlength="10" required>
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="phone_error"></span>
-                    </div>
-                    <div class="field relative">
-                        <img src="{% static 'accounts/image/openeye.png' %}" class="password-btn" alt="show"
-                            onclick="showpassword('password', this)">
-                        <input type="password" name="password" id="password" placeholder="Password" minlength="8"
-                            required>
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]"
-                            id="password_error"></span>
-                    </div>
-                    <div class="field relative">
-                        <img src="{% static 'accounts/image/openeye.png' %}" class="password-btn" alt="show"
-                            onclick="showpassword('repassword', this)">
-                        <input type="password" name="repassword" id="repassword" placeholder="Confirm password"
-                            minlength="8" required>
-                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]"
-                            id="repassword_error"></span>
-                    </div>
-                    <div class="field btn">
-                        <input type="submit" value="Signup">
-                    </div>
-                    <div id="loginForm" class="login-link">Already have an account? <a href="{% url 'login' %}">Login</a></div>
-                </form>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="gender_error"></span>
             </div>
-        </div>
+
+            <div class="input-group">
+                <label for="phone">Mobile Number</label>
+                <input type="text" id="phone" name="phone" pattern="[0-9]{10}"
+                    placeholder="Enter 10-digit mobile number" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="phone_error"></span>
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="email_error"></span>
+            </div>
+
+            <div class="input-group">
+                <label for="college">College Name</label>
+                <input type="text" id="college" name="college" placeholder="Enter your college name" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="college_error"></span>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="password_error"></span>
+            </div>
+
+            <div class="input-group">
+                <label for="repassword">Confirm Password</label>
+                <input type="password" id="repassword" name="repassword" placeholder="Confirm your password" required>
+                <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="repassword_error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+
+        <p class="text-center mt-3">Already have an account? <a href="{% url 'accounts:login' %}"
+                class="text-highlight">Login</a></p>
     </div>
 </div>
-{% endblock %}
 
-
-{% block footer %}
-<div class="h-[42px]"></div>
-{% endblock %}
-
-{% block script %}
 <script src="{% static 'accounts/js/script.js' %}"></script>
 <script src="{% static 'accounts/js/validators.js' %}"></script>
 <script>
@@ -112,6 +97,7 @@
         console.log("checking login form");
         let fname = document.getElementById('fname');
         let lname = document.getElementById('lname');
+        let gender = document.querySelector('input[name="gender"]:checked');
         let email = document.getElementById('email');
         let phone = document.getElementById('phone');
         let password = document.getElementById('password');
@@ -123,24 +109,24 @@
         let phone_error = document.getElementById('phone_error');
         let password_error = document.getElementById('password_error');
         let repassword_error = document.getElementById('repassword_error');
-        let flags = [false, true, false, false, false, false]
+        let flags = { fname: false, lname: true, gender: false, email: false, phone: false, password: false, repassword: false, college: false }
 
         // check first name
         if (fname.value.length < 3) {
             fname.style.borderColor = 'Red';
-            flags[0] = false;
+            flags.fname = false;
             fname_error.innerHTML = "First Name must have 3 or more characters";
         }
         else if (fname.value.trim().search(/^[a-zA-Z]{3,}$/)) {
             fname.style.borderColor = 'Red';
-            flags[0] = false;
+            flags.fname = false;
             fname_error.innerHTML = "First Name must have alphabets only";
         }
 
         else {
             fname.style.borderColor = 'green';
             fname_error.innerHTML = "";
-            flags[0] = true;
+            flags.fname = true;
         }
 
         // check last name if given
@@ -148,98 +134,285 @@
             let last_name = lname.value.trim()
             if (last_name.search(/^[a-z\sA-Z]{2,}$/) !== 0 || last_name.search(/\s{2,}/) !== -1) {
                 lname.style.borderColor = 'Red';
-                flags[1] = false;
+                flags.lname = false;
                 lname_error.innerHTML = "Remove extra spaces or number from Last Name";
             }
 
             else {
                 lname.style.borderColor = 'green';
                 lname_error.innerHTML = "";
-                flags[1] = true;
+                flags.lname = true;
             }
         }
         else {
             lname.style.borderColor = 'grey';
             lname_error.innerHTML = "";
-            flags[1] = true;
+            flags.lname = true;
+        }
+
+        // check gender
+        if (!gender) {
+            // gender.style.borderColor = 'Red';
+            flags.gender = false;
+            gender_error.innerHTML = "Please select gender";
+        }
+        else {
+            // gender.style.borderColor = 'green';
+            gender_error.innerHTML = "";
+            flags.gender = true;
         }
 
         // check email
         if (!email.value.length) {
             email.style.borderColor = 'Red';
-            flags[2] = false;
+            flags.email = false;
             email_error.innerHTML = "Please enter email";
         }
         else if (!email_validator(email.value)) {
             email.style.borderColor = 'Red';
-            flags[2] = false;
+            flags.email = false;
             email_error.innerHTML = "Please enter a valid email address";
         }
         else {
             email.style.borderColor = 'green';
             email_error.innerHTML = "";
-            flags[2] = true;
+            flags.email = true;
         }
 
         // check phone
         if (!phone.value.length) {
             phone.style.borderColor = 'Red';
-            flags[3] = false;
+            flags.phone = false;
             phone_error.innerHTML = "Please enter phone number";
         }
         else if (phone.value.search(/^\d{10}$/) === -1) {
             phone.style.borderColor = 'Red';
-            flags[3] = false;
+            flags.phone = false;
             phone_error.innerHTML = "Please enter a valid phone number";
         }
         else {
             phone.style.borderColor = 'green';
             phone_error.innerHTML = "";
-            flags[3] = true;
+            flags.phone = true;
         }
 
+        // check college
+        if (college.value.trim().length < 3) {
+            college.style.borderColor = 'Red';
+            flags.college = false;
+            college_error.innerHTML = "Please enter college name properly";
+        }
+        else {
+            college.style.borderColor = 'green';
+            college_error.innerHTML = "";
+            flags.college = true;
+        }
         // check password
         if (!password.value.length) {
             password.style.borderColor = 'Red';
-            flags[4] = false;
+            flags.password = false;
             password_error.innerHTML = "Please enter password";
         }
 
         else if (password.value.length < 8) {
             password.style.borderColor = 'Red';
             password_error.innerHTML = "Password must be 8 character long";
-            flags[4] = false;
+            flags.password = false;
         }
         else if (!password_validator(password.value)) {
             password.style.borderColor = 'Red';
             password_error.innerHTML = "Password must contain alphanumeric (a-z, A-Z, 0-9) and @, !, $, %, ^, &, *, (, ), +, -, ?, /";
-            flags[4] = false;
+            flags.password = false;
         }
         else {
             password.style.borderColor = 'green';
             password_error.innerHTML = "";
-            flags[4] = true;
+            flags.password = true;
         }
 
         // check confirm password
         if (repassword.value.length) {
             repassword.style.borderColor = 'Red';
-            flags[5] = false;
+            flags.repassword = false;
             repassword_error.innerHTML = "Please enter confirm password";
         }
 
         if (repassword.value !== password.value) {
             repassword.style.borderColor = 'Red';
             repassword_error.innerHTML = "Confirm Password should be same as password";
-            flags[5] = false;
+            flags.repassword = false;
         }
         else {
             repassword.style.borderColor = 'green';
             repassword_error.innerHTML = "";
-            flags[5] = true;
+            flags.repassword = true;
         }
-        return flags[0] && flags[1] && flags[2] && flags[3] && flags[4] && flags[5];
+        return flags.fname && flags.lname && flags.email && flags.phone && flags.password && flags.repassword && flags.gender && flags.college;
     }
 </script>
+
+<style>
+    /* General Styling */
+    body {
+        background-color: #0D1117;
+        /* Dark mode background */
+        font-family: 'Poppins', sans-serif;
+        color: #ffffff;
+        /* White text for readability */
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Centering Container */
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+        padding: 30px;
+    }
+
+    /* Card Styling */
+    .signup-card {
+        background: #161B22;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0px 5px 15px rgba(0, 255, 136, 0.2);
+        width: 100%;
+        max-width: 450px;
+        /* Ensures responsiveness */
+        text-align: center;
+        animation: fadeIn 0.5s ease-in-out;
+        transition: transform 0.3s ease-in-out;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Sign-Up Title */
+    .signup-title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        color: #00FFFF;
+        /* Neon Cyan */
+        margin-bottom: 15px;
+    }
+
+    /* Hover Effect */
+    .signup-card:hover {
+        transform: scale(1.02);
+    }
+
+    /* Input Group Styling */
+    .input-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .input-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #00FFFF;
+    }
+
+    /* Fixing input overflow issue */
+    .input-group input {
+        width: 100%;
+        /* Ensures input fields fit inside the card */
+        padding: 12px;
+        border: 1px solid #555;
+        background: #21262D;
+        color: #ffffff;
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+        font-size: 14px;
+        box-sizing: border-box;
+        /* Prevents padding from increasing width */
+    }
+
+    /* Input Field Focus Effect */
+    .input-group input:focus {
+        border-color: #00FFFF;
+        box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.7);
+        outline: none;
+    }
+
+    /* Placeholder Text */
+    .input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Submit Button */
+    .btn-primary {
+        padding: 10px;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        background: #00FFFF;
+        color: #0D1117;
+        width: 100%;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: #00FFFF;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px #00FFFF;
+    }
+
+    /* Alert Box */
+    .alert {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ff4444;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    /* Highlighted Text (Neon Cyan Links) */
+    .text-highlight {
+        color: #00FFFF;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .text-highlight:hover {
+        text-decoration: underline;
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 500px) {
+        .signup-card {
+            max-width: 90vw;
+            padding: 15px;
+        }
+
+        .input-group input {
+            padding: 10px;
+        }
+
+        .btn-primary {
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+    }
+</style>
 
 {% endblock %}

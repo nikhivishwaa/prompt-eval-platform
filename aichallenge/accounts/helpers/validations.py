@@ -7,6 +7,8 @@ class SignupDataValidation:
         self.phone = kwargs.get('phone', '')
         self.first_name = kwargs.get('first_name', '')
         self.last_name = kwargs.get('last_name', '')
+        self.gender = kwargs.get('gender', '')
+        self.college = kwargs.get('college', '')
         self.password = kwargs.get('password', '')
         self.repassword = kwargs.get('repassword', '')
         self.errors = []
@@ -22,7 +24,7 @@ class SignupDataValidation:
         return validated_data
 
     def is_valid(self):
-        all = self.email + self.phone + self.first_name + self.last_name + self.password + self.repassword 
+        all = self.email + self.phone + self.first_name + self.last_name + self.password + self.repassword + self.gender
         if len(all) == 0:
             self.errors.append("Please fill all the *required fields")
             return False
@@ -31,6 +33,8 @@ class SignupDataValidation:
         self.data['phone'] =  self.run_validator(data = self.phone, validator = v.validate_phone)
         self.data['first_name'] =  self.run_validator(data = self.first_name, validator = v.validate_first_name)
         self.data['last_name'] =  self.run_validator(data = self.last_name, validator = v.validate_last_name)
+        self.data['gender'] =  self.run_validator(data = self.gender, validator = v.validate_gender)
+        self.data['college'] =  self.college
         self.password =  self.run_validator(data = self.password, validator = v.validate_password)
         
         if self.password != self.repassword:

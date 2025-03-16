@@ -9,6 +9,14 @@ def validate_phone(phone:str)->bool:
     else:
         raise ValidationError("Invalid Phone Number")
 
+def validate_gender(gender:str)->bool:
+    gender = gender.strip()
+    if gender in ('m', 'f', 'x'):
+        return gender
+
+    else:
+        raise ValidationError("Invalid Gender")
+
 def validate_email(email:str)->bool:
     email = email.strip().lower()
     pattern1 = r'[\.\@\-]{2,}'

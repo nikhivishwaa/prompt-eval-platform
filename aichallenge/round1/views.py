@@ -9,8 +9,12 @@ import datetime as dt
 def get_task(request, challenge_no):
     tasks = Task.objects.all()
     print(challenge_no)
-    return HttpResponse(tasks)
+    # return HttpResponse(tasks)
+    return render(request, 'round1/tasks.html', {"tasks": tasks, "challenge_no": challenge_no})
 
+
+def get_leaderboard(request, challenge_no):
+    return render(request, 'round1/leaderboard.html', {"challenge_no": challenge_no})
 
 def submit_task(request, challenge_no, task_id):
     if request.method == 'POST':

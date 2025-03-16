@@ -1,0 +1,154 @@
+{% extends 'round1/base.html' %}
+{% block content %}
+
+<style>
+    /* Use the same background and color scheme as the home page */
+    body {
+        background-color: #121212; /* Update to match home page */
+        color: #ffffff; /* Ensure consistency */
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .contact-container {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    .contact-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #00bfff; /* Match primary theme */
+        text-shadow: 2px 2px 15px rgba(0, 191, 255, 0.7);
+    }
+
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .social-icons a {
+        background: #00bfff; /* Adjusted to match home */
+        padding: 12px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        box-shadow: 0px 0px 10px rgba(0, 191, 255, 0.4);
+    }
+
+    .social-icons a:hover {
+        transform: scale(1.2);
+        box-shadow: 0px 0px 20px rgba(0, 191, 255, 0.8);
+    }
+
+    .social-icons img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .contact-card-container {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+    }
+
+    .contact-card {
+        background: #1e1e1e; /* Adjusted to match home */
+        padding: 25px;
+        border-radius: 12px;
+        width: 280px;
+        text-align: center;
+        box-shadow: 0px 0px 15px rgba(0, 191, 255, 0.3);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 0px 25px rgba(0, 191, 255, 0.6);
+    }
+
+    .contact-card h3 {
+        color: #00bfff;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .contact-card p {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .whatsapp-icon {
+        display: inline-block;
+        margin-top: 10px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .whatsapp-icon:hover {
+        transform: scale(1.2);
+    }
+
+    .whatsapp-icon img {
+        width: 32px;
+        height: 32px;
+    }
+
+    @media (max-width: 768px) {
+        .contact-title {
+            font-size: 2rem;
+        }
+
+        .contact-card {
+            width: 90%;
+        }
+    }
+</style>
+
+<div class="contact-container">
+    <h1 class="contact-title">Contact & Support</h1>
+    <p>Follow us for regular updates</p>
+    
+    <div class="social-icons">
+        <a href="https://www.instagram.com/official_kagglekoders_sistec/profilecard/?igsh=dTkxdWljdXNqdzFx" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+        </a>
+        <a href="mailto:kagglekoders@gmail.com">
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Gmail">
+        </a>
+    </div>
+
+    <div class="contact-card-container">
+        <div class="contact-card">
+            <h3>Helpdesk</h3>
+            <p>Aashutosh Tiwari<br>+91 8435627811</p>
+            {% comment %} <a href="https://wa.me/918435627811" class="whatsapp-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+            </a> {% endcomment %}
+        </div>
+        
+        <div class="contact-card">
+            <h3>Event Coordinators</h3>
+            <p>Pal Priya Sandeep Kumar<br>+91 737971251</p>
+            {% comment %} <a href="https://wa.me/91737971251" class="whatsapp-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+            </a> {% endcomment %}
+            <p>Nikhil Vishwakarma<br>+91 9685269754</p>
+        </div>
+        
+        <div class="contact-card">
+            <h3>Faculty Coordinators</h3>
+            <p>Madhuri Walia<br>+91 8770967274</p>
+            {% comment %} <a href="https://wa.me/919753799418" class="whatsapp-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+            </a> {% endcomment %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

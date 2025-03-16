@@ -28,3 +28,5 @@ def send_otp_email(user_email, user_name, otp, reason=''):
     # Send the email
     email.send()
 
+def invite_challenge_mail():
+    pass

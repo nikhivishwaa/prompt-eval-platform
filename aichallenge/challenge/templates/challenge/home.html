@@ -1,0 +1,255 @@
+{% extends 'round1/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    /* Background Styling with Gradient */
+    body {
+        background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        color: #00FFFF;
+        overflow-x: hidden;
+        overflow-y: hidden; /* Removed page scrolling */
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Hero Section */
+    .hero {
+        text-align: center;
+        padding: 40px 20px;
+        font-weight: bold;
+        animation: fadeIn 1s ease-in-out;
+        margin: 20px auto;
+        width: 90%;
+    }
+
+    .hero h1 {
+        font-size: 2.8rem;
+        margin: 0;
+    }
+
+    /* Floating Bubbles */
+    .bubble {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: radial-gradient(circle, rgba(0, 255, 255, 0.8), rgba(0, 255, 255, 0.1));
+        border-radius: 50%;
+        opacity: 0.6;
+        z-index: 1;
+        animation: floatUp 8s infinite linear;
+    }
+
+    @keyframes floatUp {
+        0% {
+            transform: translateY(100vh) translateX(0);
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 0.8;
+        }
+        100% {
+            transform: translateY(-100vh) translateX(20px);
+            opacity: 0;
+        }
+    }
+
+    /* Event Section */
+    .event-section {
+        width: 75%;
+        margin: auto;
+        padding: 30px 0;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Event Card Styling */
+    .event-card {
+        background: rgba(20, 20, 20, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        overflow: hidden;
+        padding: 20px;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        max-width: 620px; /* Increased width */
+        height: 550px; /* Decreased height */
+        margin: auto;
+        position: relative;
+        z-index: 10;
+    }
+
+    .event-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .event-info {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .event-info h2 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #00FFFF;
+    }
+
+    .event-info p {
+        font-size: 14px;
+        color: White;
+    }
+
+    /* Countdown, Date & Prize Pool Styling */
+    .event-meta {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: 15px 0;
+        padding: 8px;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+
+    .event-meta span {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #00FFFF;
+    }
+
+    /* Countdown Styling */
+    .countdown-section {
+        text-align: center;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+
+    .countdown-container {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .time-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #00FFFF;
+    }
+
+    .time-label {
+        font-size: 1rem;
+        font-weight: normal;
+    }
+
+    /* Registration Button */
+    .register-btn {
+        display: inline-block;
+        background:#FFD700;
+        color: #0F2027;
+        padding: 10px 20px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s ease-in-out;
+        margin-top: 10px;
+    }
+
+    .register-btn:hover {
+        background: #00EEEE;
+        box-shadow: 0 0 10px #00FFFF;
+    }
+
+     /* Added more spacing between header, footer, and event box */
+.header-spacing {
+    margin-bottom: 0px; /* Increased from 30px */
+}
+
+
+/* Ensures extra space between event section and footer */
+.footer-spacing {
+    margin-top: 120px; /* Increased from 80px */
+}
+
+/* Ensures the event section has enough spacing */
+.event-section {
+    margin-bottom: 100px !important; /* Forces spacing */
+}
+
+</style>
+
+<!-- Floating Background Bubbles -->
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        for (let i = 0; i < 15; i++) {
+            let bubble = document.createElement("div");
+            bubble.classList.add("bubble");
+            bubble.style.left = Math.random() * 100 + "vw";
+            bubble.style.animationDuration = Math.random() * 5 + 5 + "s";
+            document.body.appendChild(bubble);
+        }
+    });
+</script>
+
+{% comment %} <!-- Header Spacing -->
+<div class="header-spacing"></div> {% endcomment %}
+
+<!-- Event Section -->
+<section class="event-section">
+    <div class="event-card">
+        <img src="{% static 'challenge/img/home_Image.png' %}" alt="Combat the Prompt">
+        <div class="event-info">
+            <h2>AI PROMPT COMBAT</h2>
+            <p >Organized by Department of CSE - Artificial Intelligence and Data Science</p>
+            <p>Sagar Institute of Science and Technology | Gandhinagar | Bhopal</p>
+            
+            <div class="event-meta">
+                <span>📅 April 3, 2025</span> 
+                <span>🏆 Prize Pool ₹ 7000</span>
+            </div>
+            <div class="countdown-section">
+                <h3>Time Remaining:</h3>
+                <div class="countdown-container" id="countdown">
+                    <div class="time-box"><span id="days"></span><span class="time-label">Days</span></div>
+                    <div class="time-box"><span id="hours"></span><span class="time-label">Hours</span></div>
+                    <div class="time-box"><span id="minutes"></span><span class="time-label">Minutes</span></div>
+                    <div class="time-box"><span id="seconds"></span><span class="time-label">Seconds</span></div>
+                </div>
+            </div>
+            <a href="{% url 'challenge:participate' challenge.id %}" class="register-btn">Register Now</a>
+        </div>
+    </div>
+</section>
+<br>
+<br>
+<br>
+<script>
+    function updateCountdown() {
+        const eventDate = new Date("April 3, 2025 00:00:00").getTime();
+        const now = new Date().getTime();
+        const timeLeft = eventDate - now;
+
+        document.getElementById("days").innerText = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        document.getElementById("hours").innerText = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById("minutes").innerText = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById("seconds").innerText = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    }
+
+    setInterval(updateCountdown, 1000);
+</script>
+
+<!-- Footer Spacing -->
+<div class="footer-spacing"></div>
+
+{% endblock %}

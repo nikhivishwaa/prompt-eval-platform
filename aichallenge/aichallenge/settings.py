@@ -198,13 +198,6 @@ STORAGES = {
         },
     },
 }
-# SUPABASE_ACCESS_KEY = os.environ.get('SUPABASE_ACCESS_KEY', '') 
-# SUPABASE_SECRET_KEY = os.environ.get('SUPABASE_SECRET_KEY', '') 
-# SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME', '')
-# ENDPOINT_URL = os.environ.get('ENDPOINT_URL', '')
-# SUPABASE_SERVE_URL = os.environ.get('SUPABASE_SERVE_URL', '')
-
-# DEFAULT_FILE_STORAGE = 'accounts.models.SupabaseStorage' 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

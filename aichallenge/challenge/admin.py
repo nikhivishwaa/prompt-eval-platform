@@ -5,8 +5,8 @@ from challenge.models import Event, Participation
 # Register your models here.
 
 @admin.register(Event)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event_name', 'event_description', 'status')
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'event_name', 'event_description', 'status','participants')
     search_fields = ('event_name', 'event_description')
     ordering = ('id',)
     model = Event
@@ -21,17 +21,16 @@ class TaskAdmin(admin.ModelAdmin):
         else:
             return 'Upcoming'
 
-    def participant(self, obj):
+    def participants(self, obj):
         count = Participation.objects.filter(event=obj).count()
         return count
 
 @admin.register(Participation)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event', 'user', 'joined_at', 'finished_at')
-    aggregate_fields = ('event',)
-    ordering = ('id',)
+class ParticipationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'event_name', 'user', 'enrolled_at', 'round1_score', 'round2_score')
+    aggregate_fields = ('event_name',)
+    ordering = ('enrolled_at','finished_at', 'round1_score', 'round2_score')
     model = Participation
 
-    # def participant(self, obj):
-    #     count = Participation.objects.filter(event=obj).count()
-    #     return count
+    def event_name(self, obj):
+        return obj.event.event_name

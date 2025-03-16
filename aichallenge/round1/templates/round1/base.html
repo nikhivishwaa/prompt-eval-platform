@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kaggle Koder's | AI PROMPT COMBAT{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static 'challenge/img/k2.jpg' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Background Styling with Gradient */
+        body {
+            background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+            color: #00FFFF;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #00FFFF;
+            position: relative;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar img {
+            height: 50px;
+            margin-right: 15px;
+            transition: transform 0.3s;
+        }
+
+        .navbar img:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #00FFFF;
+        }
+
+        .navbar-right a {
+            text-decoration: none;
+            color: #00FFFF;
+            font-weight: bold;
+            margin: 0 15px;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .navbar-right a:hover {
+            color: #FFD700;
+        }
+
+        .navbar-right a::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #FFD700;
+            transition: width 0.3s;
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .navbar-right a:hover::after {
+            width: 100%;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(20, 20, 20, 0.9);
+            color: #00FFFF;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-top: 2px solid #00FFFF;
+        }
+
+        /* Floating Background Bubbles */
+        .bubble {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.8), rgba(0, 255, 255, 0.1));
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 1;
+            animation: floatUp 8s infinite linear;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar">
+            <div class="navbar-left">
+                <img src="{% static 'challenge/img/k22.jpg' %}" alt="Logo">
+                <h2>KAGGLE KODER'S</h2>
+            </div>
+            <div class="navbar-right">
+                <a href="/">Home</a>
+                <a href="{% url 'rules' %}">Rules</a>
+                <a href="{% url 'challenge:all_challenge' %}">Competition</a>
+                <a href="/leaderboard">Leaderboard</a>
+                <a href="{% url 'contact' %}">Contact</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'signup' %}">SignUp</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+     <br>
+     <br>
+     <br>
+     <br>
+    <footer class="footer">
+        
+        <p>🔥 Fuel the Future of AI! Innovate, Compete, and Win.</p>
+    </footer>
+
+    <!-- Floating Background Bubbles -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            for (let i = 0; i < 15; i++) {
+                let bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+                bubble.style.left = Math.random() * 100 + "vw";
+                bubble.style.animationDuration = Math.random() * 5 + 5 + "s";
+                document.body.appendChild(bubble);
+            }
+        });
+    </script>
+</body>
+</html>

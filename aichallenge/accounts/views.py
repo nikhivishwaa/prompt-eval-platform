@@ -23,7 +23,7 @@ import json
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('/challenge')
     if request.method == 'POST':
         dataval = SignupDataValidation(request.POST)
         if dataval.is_valid():  
@@ -39,12 +39,13 @@ def register(request):
                 user.set_password(dataval.password)
                 user.save()
                 print('registered successfully', user)
-                otp_helper(user)
+                # otp_helper(user)
                 messages.success(request, "Account Created")
-                messages.success(request, "We have sent an OTP to your email for verification")
+                # messages.success(request, "We have sent an OTP to your email for verification")
         
                 # renering verify email page on signup route
-                return render(request, 'accounts/verifyemail.html', context={'email':user.email, "status":"sent"})
+                # return render(request, 'accounts/verifyemail.html', context={'email':user.email, "status":"sent"})
+                return redirect('/login')
         else:
             print(dataval.errors, dataval.data)
             messages.error(request, dataval.errors)
@@ -55,7 +56,7 @@ def register(request):
 @login_required(login_url="login")
 def verification_otp(request):
     if request.user.verified:
-        return redirect('dashboard')
+        return redirect('/challenge')
     else:
         otp_helper(request.user)
         messages.success(request, "OTP has been sent to your email for verification")
@@ -128,7 +129,7 @@ def verifyemail(request):
     # handle GET request
     if request.user.is_authenticated:
         if request.user.verified:
-            return redirect('dashboard')
+            return redirect('/challenge')
        
         else:
             return render(request, 'accounts/verifyemail.html', context={'email':request.user.email, 'status':'fresh'})
@@ -137,7 +138,7 @@ def verifyemail(request):
 
 def logoutuser(request):
     logout(request)
-    return redirect('/')
+    return redirect('/challenge')
 
 @login_required(login_url="login")
 @csrf_exempt
@@ -194,18 +195,22 @@ def profileform(request):
         u.dob = request.POST.get('dob','')
         u.save()
         messages.success(request, "Profile Updated Successfully")
-        return redirect('dashboard')
+        return redirect('/challenge')
     return render(request, 'accounts/profileform.html')
 
 def userauth(request):
     if request.user.is_authenticated:
-        return redirect('send_otp')
+        # return redirect('send_otp')
+        return redirect('/challenge')
         
 
     elif request.method == 'POST':
         email = request.POST.get('email', '').lower()
         password = request.POST.get('password', '')
+
         if email and password:
+            if email.isnumeric():
+                email = User.objects.filter(phone = email).first().email
             user = authenticate(email=email, password=password)
             print('user', user, 'logged in')
             if user is not None:
@@ -216,7 +221,7 @@ def userauth(request):
                 messages.error(request, "Invalid Credentials")
                 return redirect('login')
         else:
-            messages.error(request, f"{'Password' if not password else 'Email'} is missing")
+            messages.error(request, f"{'Password' if not password else 'Email/Mobile no.'} is missing")
             return render(request, 'accounts/login.html')
 
 
@@ -340,3 +345,13 @@ def profile(request):
         form = ProfileEditForm(instance=user)
 
     return render(request, 'home/profile.html', {'form': form})
+
+
+def contact(request):
+    return render(request, 'accounts/contact.html')
+    
+def rules(request):
+    return render(request, 'accounts/rules.html')
+
+# def home(request):
+#     return render(request, 'accounts/home.html')

@@ -17,9 +17,15 @@ class Event(models.Model):
 class Participation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(auto_now=True, null=False, blank=False)
+    enrolled_at = models.DateTimeField(auto_now=True, null=False, blank=False)
+    started_at = models.DateTimeField(blank=True, null= True)
     finished_at = models.DateTimeField(blank=True, null= True)
     last_updated = models.DateTimeField(auto_now=True, blank=False, null=False)
+    round1_score = models.FloatField(null=True, blank=True)
+    round2_score = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'event')
 
     def __str__(self):
         return f'{self.event.event_name} - {self.user.last_name}'

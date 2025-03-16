@@ -1,0 +1,151 @@
+{% extends 'round1/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="leaderboard-container">
+    <div class="leaderboard-card">
+        <h2 class="title">Leaderboard</h2>
+        <p class="description">Top participants based on their scores.</p>
+
+        <div class="table-responsive">
+            <table class="table leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in leaderboard %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ participant.name }}</td>
+                        <td>{{ participant.score }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No participants yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Full Page Styling */
+.leaderboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Card Styling */
+.leaderboard-card {
+    background: rgba(20, 20, 20, 0.9);
+    padding: 30px; /* Reduced padding */
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
+    width: 60%; /* Smaller width */
+    max-width: 500px; /* More compact */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Hover Effect */
+.leaderboard-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 255, 255, 0.4);
+}
+
+/* Title */
+.title {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.6rem;
+    color: #00FFFF;
+}
+
+/* Description */
+.description {
+    font-size: 1rem;
+    color: #00EEEE;
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+.leaderboard-table {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.leaderboard-table thead {
+    background: #00FFFF;
+    color: black;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: rgba(0, 255, 255, 0.1);
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .leaderboard-card {
+        width: 75%;
+        max-width: 450px;
+    }
+
+    .title {
+        font-size: 1.4rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .leaderboard-card {
+        width: 85%;
+        max-width: 400px;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .description {
+        font-size: 0.85rem;
+    }
+
+    .leaderboard-table th, .leaderboard-table td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+{% endblock %}

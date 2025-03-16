@@ -1,0 +1,199 @@
+{% extends 'round1/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="level-container">
+    <div class="prompt-card">
+        <h2 class="title">Level 1: Prompt Writing</h2>
+        <p class="text-center description">
+            Write a detailed prompt based on the given conditions below and submit.
+        </p>
+
+        <form method="post" action="{% url 'round1:get_task' challenge_no %}">
+            {% csrf_token %}
+
+            <div class="question">
+                <h5>1. Write a prompt to generate an image of a peaceful beach with blue skies, palm trees, and waves:</h5>
+                <textarea class="form-control" name="prompt1" rows="3" required></textarea>
+            </div>
+
+            <div class="question">
+                <h5>2. Write a prompt to generate a short poem on the importance of teachers:</h5>
+                <textarea class="form-control" name="prompt2" rows="3" required></textarea>
+            </div>
+
+            <div class="question">
+                <h5>3. Write a prompt to generate a motivational message for someone preparing for exams:</h5>
+                <textarea class="form-control" name="prompt3" rows="3" required></textarea>
+            </div>
+
+            <div class="text-center submit-container">
+                <button type="submit" class="btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Full Page Styling */
+.level-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height for perfect centering */
+    text-align: center;
+}
+
+/* Card Styling */
+.prompt-card {
+    background: rgba(20, 20, 20, 0.9);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+    width: 80%;
+    max-width: 700px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.prompt-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 255, 255, 0.4);
+}
+
+/* Title Styling */
+.title {
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    text-align: center;
+    color: #00FFFF;
+}
+
+/* Description */
+.description {
+    font-size: 1.2rem;
+    color: #00EEEE;
+    margin-bottom: 25px;
+}
+
+/* Question Styling */
+.question {
+    margin-bottom: 20px;
+}
+
+h5 {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #00FFFF;
+}
+
+/* Textarea Styling */
+textarea {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #00FFFF;
+    padding: 12px;
+    font-size: 1rem;
+    background: rgba(0, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease-in-out;
+}
+
+textarea:focus {
+    border-color: #00FFFF;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    outline: none;
+}
+
+/* Submit Button */
+.submit-container {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.btn-primary {
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    background: #00FFFF;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 255, 255, 0.4);
+    border: none;
+    color: black;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #00EEEE;
+    box-shadow: 0 0 10px #00FFFF;
+    transform: scale(1.05);
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .prompt-card {
+        width: 85%;
+        padding: 30px;
+    }
+
+    .title {
+        font-size: 1.8rem;
+    }
+
+    .question h5 {
+        font-size: 1rem;
+    }
+
+    textarea {
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        font-size: 1rem;
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .prompt-card {
+        width: 95%;
+        padding: 25px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .question h5 {
+        font-size: 0.9rem;
+    }
+
+    textarea {
+        font-size: 0.8rem;
+        padding: 10px;
+    }
+
+    .btn-primary {
+        font-size: 1rem;
+        padding: 10px 14px;
+    }
+}
+</style>
+
+{% endblock %}
