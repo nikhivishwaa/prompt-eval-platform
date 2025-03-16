@@ -1,0 +1,130 @@
+{% extends 'accounts/base.html' %}
+
+{% load static %}
+
+{% block head %}<title>Verify your email to complete your Signup with Dentify AI</title>
+<style>
+    #verify-title {
+        font-size: 35px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+
+{% endblock %}
+
+{% block body %}
+<div class="flex flex-col justify-start max-[357px]:w-[96%] max-[357px]:mx-auto">
+    <nav class="bg-[white] text-black nav-home">
+        <a href="/">
+            <div class="flex gap-1 items-end">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z" />
+                </svg>
+
+                <span>Home</span>
+            </div>
+        </a>
+    </nav>
+    <div class="wrapper min-[400px]:w-[450px] w-[100%]">
+        <div class="title-text flex flex-column w-100">
+            <div id="verify-title">Verify Your Email</div>
+            <div class="text-[12px] text-center font-normal">{{email}}</div>
+        </div>
+        <div class="form-container">
+            {% if messages %}
+            <section class="messages mt-1">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible rounded-[6px] py-[8px] fade show"
+                    role="alert">
+                    <strong>{{ message.tags|capfirst }} :</strong> {{ message }}
+                    <button type="button" class="btn-close" style="padding-top: 8px !important;" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+            <div class="form-inner">
+                <form action="{% url 'verifyemail' %}" method="post" class="signup"
+                    onsubmit="return checkVerificationForm()">
+                    {% csrf_token %}
+                    <div class="field">
+                        <input id="resend" name="resend" type="text" hidden value="any">
+
+                    </div>
+                    <div class="field">
+                        <input id="email" name="email" type="email" value="{{email}}" placeholder="Email Address"
+                            hidden>
+                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="email_error"></span>
+                    </div>
+                    <div class="field">
+                        <label for="otp" class="text-[18px] font-normal my-1 ml-[2px]">OTP :</label>
+                        <input id="otp" class="pr-2" name="otp" type="text" placeholder="* * * * * *" maxlength="6"
+                            minlength="6" required>
+                        <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="otp_error"></span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="field btn">
+                            <button class="resend-btn" onclick="resendOTP()"> Resend
+                        </div>
+                        <div class="field btn">
+                            <input type="submit" id="submit" value="Submit">
+                        </div>
+                    </div>
+                    <div id="loginForm" class="login-link text-[12px] mt-0">Once the OTP sent valid for 10 Mins</div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block footer %}
+<div class="h-[42px]"></div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'accounts/js/script.js' %}"></script>
+<script src="{% static 'accounts/js/validators.js' %}"></script>
+<script>
+    function resendOTP() {
+        document.getElementById('resend').value = 'resend';
+        document.getElementById('otp').required = false;
+        setTimeout(() => $('#submit').click(), 200)
+    }
+    function checkVerificationForm() {
+        console.log("checking login form");
+        let resend = document.getElementById('resend');
+        let otp = document.getElementById('otp');
+
+        let otp_error = document.getElementById('otp_error');
+        let flags = false
+
+        // check if user request to resend otp
+        if (resend.value === 'resend') return true
+
+        // check OTP
+        if (!otp.value.length) {
+            otp.style.borderColor = 'Red';
+            flag = false;
+            otp_error.innerHTML = "Please enter otp number";
+        }
+        else if (otp.value.search(/^\d{6}$/) === -1) {
+            otp.style.borderColor = 'Red';
+            flag = false;
+            otp_error.innerHTML = "Please enter a valid otp number";
+        }
+        else {
+            otp.style.borderColor = 'green';
+            otp_error.innerHTML = "";
+            flag = true;
+        }
+
+        return flag;
+    }
+</script>
+
+{% endblock %}

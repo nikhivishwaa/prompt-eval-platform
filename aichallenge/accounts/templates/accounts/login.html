@@ -1,0 +1,134 @@
+{% extends 'accounts/base.html' %}
+
+{% load static %}
+
+{% block head %}<title>Login: Dentify AI features are only be accessible after successful login in to your account
+</title>{% endblock %}
+
+{% block body %}
+<div class="flex flex-col justify-start max-[357px]:w-[96%] max-[357px]:mx-auto">
+    <nav class="bg-[white] text-black nav-home">
+      <a href="/">
+        <div class="flex gap-1 items-end">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z" />
+          </svg>
+
+          <span>Home</span>
+        </div>
+      </a>
+    </nav>
+  <section class="wrapper min-[400px]:w-[450px] w-[100%]">
+    <div class="title-text">
+      <div class="title login">Login to Dentify AI</div>
+    </div>
+    <div class="form-container">
+      <div class="slide-controls">
+        <input type="radio" name="slide" id="login" checked>
+        <input type="radio" name="slide" id="signup">
+        <label id="loginForm" for="login" class="slide login">Login</label>
+        <label id="signupForm" for="signup" class="slide signup">Signup</label>
+        <div class="slider-tab"></div>
+      </div>
+      {% if messages %}
+      <section class="messages mt-1">
+        {% for message in messages %}
+        <div
+          class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible rounded-[6px] py-[8px] pt-[14px] fade show"
+          role="alert">
+          <strong>{{ message.tags|capfirst }} :</strong> {{ message }}
+          <button type="button" class="btn-close" style="padding-top: 8px !important;" data-bs-dismiss="alert"
+            aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+      <div class="form-inner">
+        <form method="post" action="{% url 'login' %}" class="login" onsubmit="return checkLoginForm()">
+          {% csrf_token %}
+
+          <div class="field">
+            <input type="email" placeholder="Email Address" name="email" id="email" required>
+            <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="email_error"></span>
+          </div>
+          <div class="field relative">
+            <img src="{% static 'accounts/image/openeye.png' %}" class="password-btn" alt="show"
+              onclick="showpassword('password', this)">
+            <input type="password" placeholder="Password" name="password" id="password" required>
+            <span class="block text-[12px] font-medium py-1 px-[10px] text-[red]" id="password_error"></span>
+          </div>
+          <div class="pass-link"><a href="{% url 'forgotpassword' %}">Forgot password?</a></div>
+          <div class="field btn">
+            <div class="btn-layer"></div>
+            <input type="submit" value="Login">
+          </div>
+          <div id="signupForm" class="signup-link">Create an account <a href="{% url 'signup' %}">Signup now</a></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+
+{% block footer %}
+<div class="h-[42px]"></div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'accounts/js/script.js' %}"></script>
+<script src="{% static 'accounts/js/validators.js' %}"></script>
+<script>
+
+  function showpassword(id, x) {
+    let passwordfield = document.querySelector(`input[id="${id}"]`)
+    passwordfield.type = passwordfield.type === 'password' ? 'text' : 'password';
+    x.src = x.src.endsWith("/openeye.png") ? "{% static 'accounts/image/closeeye.png' %}" : "{% static 'accounts/image/openeye.png' %}";
+  }
+
+  function checkLoginForm(x) {
+    console.log("checking login form");
+    let email = document.getElementById('email');
+    let password = document.getElementById('password');
+    let email_error = document.getElementById('email_error');
+    let password_error = document.getElementById('password_error');
+    let flags = [false, false]
+
+    if (!email.value) {
+      email.style.borderColor = 'Red';
+      flags[0] = false;
+      email_error.innerHTML = "Please enter email";
+    }
+    else if (!email_validator(email.value)) {
+      email.style.borderColor = 'Red';
+      flags[0] = false;
+      email_error.innerHTML = "Please enter a valid email address";
+    }
+    else {
+      email.style.borderColor = 'green';
+      email_error.innerHTML = "";
+      flags[0] = true;
+    }
+
+    if (password.value) {
+      password.style.borderColor = 'Red';
+      flags[1] = false;
+      password_error.innerHTML = "Please enter password";
+    }
+
+    if (password.value.length < 8) {
+      password.style.borderColor = 'Red';
+      password_error.innerHTML = "Password must be 8 character long";
+      flags[1] = false;
+    }
+    else {
+      password.style.borderColor = 'green';
+      password_error.innerHTML = "";
+      flags[1] = true;
+    }
+    return flags[0] && flags[1];
+  }
+</script>
+{% endblock %}
