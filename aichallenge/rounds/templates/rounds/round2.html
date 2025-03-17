@@ -1,0 +1,202 @@
+{% extends 'round1/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="level-container">
+    <div class="upload-card">
+        <h2 class="title">Level 2: Image Generation</h2>
+        <p class="text-center description">
+            Observe the reference image below and upload your generated image that closely matches it.
+        </p>
+
+        <!-- Reference Image -->
+        <div class="text-center">
+            <img src="{% static 'challenge/img/home_Image.png' %}" class="img-fluid reference-img" alt="AI Prompt Combat">
+        </div>
+
+        <!-- Upload Form -->
+        <form method="post" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="upload-box">
+                <label class="form-label">Upload Your Image:</label>
+                <input type="file" class="form-control file-input" name="user_image" required>
+            </div>
+
+            <div class="text-center submit-container">
+                <button type="submit" class="btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Full Page Styling */
+.level-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Card Styling */
+.upload-card {
+    background: rgba(20, 20, 20, 0.9);
+    padding: 25px; /* Reduced padding */
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
+    width: 60%; /* Reduced width */
+    max-width: 450px; /* Made it more compact */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Hover Effect */
+.upload-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 255, 255, 0.4);
+}
+
+/* Title */
+.title {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.6rem; /* Slightly smaller */
+    color: #00FFFF;
+}
+
+/* Description */
+.description {
+    font-size: 1rem;
+    color: #00EEEE;
+    margin-bottom: 20px;
+}
+
+/* Reference Image */
+.reference-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #00FFFF;
+    padding: 4px;
+}
+
+/* Upload Box */
+.upload-box {
+    margin: 15px 0;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #00FFFF;
+    font-size: 0.9rem;
+}
+
+/* File Input */
+.file-input {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #00FFFF;
+    padding: 10px;
+    font-size: 0.9rem;
+    background: rgba(0, 255, 255, 0.1);
+    color: white;
+}
+
+.file-input:focus {
+    border-color: #00FFFF;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    outline: none;
+}
+
+/* Submit Button */
+.submit-container {
+    margin-top: 10px;
+}
+
+.btn-primary {
+    padding: 10px 18px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #00FFFF;
+    border-radius: 6px;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 3px 6px rgba(0, 255, 255, 0.3);
+    border: none;
+    color: black;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #00EEEE;
+    box-shadow: 0 0 8px #00FFFF;
+    transform: scale(1.05);
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .upload-card {
+        width: 75%;
+        max-width: 400px;
+    }
+
+    .title {
+        font-size: 1.4rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    .file-input {
+        font-size: 0.85rem;
+    }
+
+    .btn-primary {
+        font-size: 0.95rem;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-card {
+        width: 85%;
+        max-width: 350px;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .form-label {
+        font-size: 0.8rem;
+    }
+
+    .file-input {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+
+    .btn-primary {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+</style>
+
+{% endblock %}

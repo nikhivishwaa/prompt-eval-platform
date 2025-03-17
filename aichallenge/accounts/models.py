@@ -19,6 +19,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, validators=[v.validate_first_name])
     last_name = models.CharField(max_length=150, blank=True, validators=[v.validate_last_name])
     gender = models.CharField(max_length=10, blank=True, choices=GENDER)
+    college = models.CharField(max_length=100, blank=True, choices=GENDER)
     dob = models.DateField(blank=True, null=True)
     profile_pic = models.FileField(upload_to='profile/', null=True, blank=True)
     last_modified = models.DateField(auto_now=True)

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class Round1Config(AppConfig):
+class RoundsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'round1'
+    name = 'rounds'

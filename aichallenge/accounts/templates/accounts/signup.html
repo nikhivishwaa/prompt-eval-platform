@@ -1,4 +1,4 @@
-{% extends 'round1/base.html' %}
+{% extends 'rounds/base.html' %}
 {% load static %}
 {% block content %}
 <div class="container d-flex justify-content-center align-items-center">
@@ -13,7 +13,7 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'account:signup' %}" onsubmit="return checkSignupForm()">
+        <form method="POST" action="{% url 'signup' %}" onsubmit="return checkSignupForm()">
             {% csrf_token %}
 
             <div class="input-group">
@@ -79,7 +79,7 @@
             <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
 
-        <p class="text-center mt-3">Already have an account? <a href="{% url 'accounts:login' %}"
+        <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}"
                 class="text-highlight">Login</a></p>
     </div>
 </div>

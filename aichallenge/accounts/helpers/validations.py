@@ -5,8 +5,8 @@ class SignupDataValidation:
     def __init__(self, kwargs:dict):
         self.email = kwargs.get('email', '')
         self.phone = kwargs.get('phone', '')
-        self.first_name = kwargs.get('first_name', '')
-        self.last_name = kwargs.get('last_name', '')
+        self.first_name = kwargs.get('fname', '')
+        self.last_name = kwargs.get('lname', '')
         self.gender = kwargs.get('gender', '')
         self.college = kwargs.get('college', '')
         self.password = kwargs.get('password', '')

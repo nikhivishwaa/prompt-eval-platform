@@ -1,5 +1,5 @@
 from django.urls import path, include
-from round1 import views
+from rounds import views
 
 app_name = 'round1'
 

@@ -1,4 +1,4 @@
-{% extends 'round1/base.html' %}
+{% extends 'rounds/base.html' %}
 {% load static %}
 {% block content %}
 
@@ -181,7 +181,7 @@
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
 
-        <p class="text-center mt-3">Don't have an account? <a href="{% url 'login' %}" class="text-highlight">Signup</a>
+        <p class="text-center mt-3">Don't have an account? <a href="{% url 'signup' %}" class="text-highlight">Signup</a>
         </p>
     </div>
 </div>

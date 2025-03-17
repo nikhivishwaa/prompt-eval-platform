@@ -55,8 +55,7 @@ INSTALLED_APPS = [
 EXTERNAL_APPS = [
                  'corsheaders',
                  'accounts',
-                 'round1',
-                 'round2',
+                 'rounds',
                  'challenge',
                 #  'home',
 ]

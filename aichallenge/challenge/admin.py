@@ -6,17 +6,17 @@ from challenge.models import Event, Participation
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event_name', 'event_description', 'status','participants')
-    search_fields = ('event_name', 'event_description')
+    list_display = ('id', 'event_name', 'event_desc', 'status','participants',)
+    search_fields = ('event_name', 'event_desc')
     ordering = ('id',)
     model = Event
 
     def status(self, obj):
         import datetime as dt
 
-        if obj.start_ts < dt.datetime.now(dt.timezone.utc) < obj.end_ts:
+        if obj.round1_start_ts < dt.datetime.now(dt.timezone.utc) < obj.round2_end_ts:
             return 'Ongoing'
-        elif obj.end_ts < dt.datetime.now(dt.timezone.utc):
+        elif obj.round2_end_ts < dt.datetime.now(dt.timezone.utc):
             return 'Completed'
         else:
             return 'Upcoming'
