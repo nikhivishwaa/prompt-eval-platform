@@ -56,6 +56,7 @@ class Round1Submission(models.Model):
     creativity = models.FloatField(default=0.0, null=False, blank=False)
     relavance = models.FloatField(default=0.0, null=False, blank=False)
     optimization = models.FloatField(default=0.0, null=False, blank=False)
+    score = models.FloatField(default=0.0, null=False, blank=False)
     def __str__(self):
         return f"{self.participant.user} : {self.round1_task} : {self.prompt}"
 
@@ -64,6 +65,7 @@ class Round1Submission(models.Model):
         return score
 
     def save(self, *args, **kwargs):
+        self.score = self.getscore()
         self.last_updated = dt.datetime.now(dt.timezone.utc)
         super().save(*args, **kwargs)
 

@@ -2,198 +2,271 @@
 {% load static %}
 
 {% block content %}
-
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>
+    document.body.style.overflowY = 'auto';
+</script>
 <div class="level-container">
-    <div class="prompt-card">
+    <section class="prompt-card">
+    {% for task in tasks %}
+        <div class="question w-[90%] mx-auto" id="task-{{forloop.counter}}">
+            <h5>{{forloop.counter}}. {{task.title}}:</h5>
+            <p class="text-[12px]"><span class="text-red-600">*</span> {{task.desc}}</p>
+            <p>{{task.task.detail}}</p>
+            <form method="post" class="w-full"
+                onsubmit="return submitTask(event, '{{forloop.counter}}', '{{task.task.id}}', `{% url 'challenge:submit_task_r1' challenge_no task.task.id %}`)">
+                {% csrf_token %}
+                <textarea class="form-control" id="prompt-{{task.task.id}}" name="prompt" rows="3" required></textarea>
+                <div class="text-center submit-container">
+                    <button type="submit" class="btn-primary">Submit</button>
+                </div>
+            </form>
+
+        </div>
+        {% endfor %}
+    </section>
+    <script>
+        async function submitTask(e, idx, taskId, url) {
+            e.preventDefault()
+            let prompt = document.getElementById(`prompt-${taskId}`).value;
+            if (prompt.value.trim() === '') {
+                alert('Please write a prompt')
+                return false
+            }
+            let csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            let form = new FormData();
+            form.append('prompt', prompt)
+            form.append('csrfmiddlewaretoken', csrfmiddlewaretoken)
+
+            const allow = confirm('You Want to Submit Task #' + idx + '?')
+            if (!allow) {
+                return false
+            }
+            const response = await fetch(url, {
+                method: 'POST',
+                body: form
+            })
+
+            const data = response.json()
+            console.log({ data })
+            if (response.ok) {
+                alert(`Task #${idx} Submitted Successfully`)
+                document.getElementById('prompt-' + taskId).readOnly = true;
+            }
+            return false
+        }
+    </script>
+
+    <aside class="flex flex-col gap-1 sidebar-container self-start w-[94%] mr-auto">
+        <!-- Sidebar content goes here -->
         <h2 class="title">Level 1: Prompt Writing</h2>
         <p class="text-center description">
-            Write a detailed prompt based on the given conditions below and submit.
+            Write a detailed prompt based on the given conditions and submit.
         </p>
 
-        <form method="post" action="{% url 'round1:get_task' challenge_no %}">
-            {% csrf_token %}
-
-            <div class="question">
-                <h5>1. Write a prompt to generate an image of a peaceful beach with blue skies, palm trees, and waves:</h5>
-                <textarea class="form-control" name="prompt1" rows="3" required></textarea>
-            </div>
-
-            <div class="question">
-                <h5>2. Write a prompt to generate a short poem on the importance of teachers:</h5>
-                <textarea class="form-control" name="prompt2" rows="3" required></textarea>
-            </div>
-
-            <div class="question">
-                <h5>3. Write a prompt to generate a motivational message for someone preparing for exams:</h5>
-                <textarea class="form-control" name="prompt3" rows="3" required></textarea>
-            </div>
-
-            <div class="text-center submit-container">
-                <button type="submit" class="btn-primary">Submit</button>
-            </div>
-        </form>
-    </div>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td><a href="#task-{{ forloop.counter }}"># {{ forloop.counter }}</a></td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </aside>
 </div>
 
+
 <style>
-/* Full Page Styling */
-.level-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Full height for perfect centering */
-    text-align: center;
-}
-
-/* Card Styling */
-.prompt-card {
-    background: rgba(20, 20, 20, 0.9);
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
-    width: 80%;
-    max-width: 700px;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-.prompt-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 20px rgba(0, 255, 255, 0.4);
-}
-
-/* Title Styling */
-.title {
-    font-weight: bold;
-    margin-bottom: 20px;
-    font-size: 2rem;
-    text-align: center;
-    color: #00FFFF;
-}
-
-/* Description */
-.description {
-    font-size: 1.2rem;
-    color: #00EEEE;
-    margin-bottom: 25px;
-}
-
-/* Question Styling */
-.question {
-    margin-bottom: 20px;
-}
-
-h5 {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #00FFFF;
-}
-
-/* Textarea Styling */
-textarea {
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid #00FFFF;
-    padding: 12px;
-    font-size: 1rem;
-    background: rgba(0, 255, 255, 0.1);
-    color: white;
-    transition: all 0.3s ease-in-out;
-}
-
-textarea:focus {
-    border-color: #00FFFF;
-    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
-    outline: none;
-}
-
-/* Submit Button */
-.submit-container {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.btn-primary {
-    padding: 12px 20px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-decoration: none;
-    background: #00FFFF;
-    border-radius: 8px;
-    transition: 0.3s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 255, 255, 0.4);
-    border: none;
-    color: black;
-    cursor: pointer;
-}
-
-.btn-primary:hover {
-    background: #00EEEE;
-    box-shadow: 0 0 10px #00FFFF;
-    transform: scale(1.05);
-}
-
-/* Fade-in Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+    /* Full Page Styling */
+    .level-container {
+        display: grid;
+        grid-template-columns: 6fr 3fr;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        /* Account for header and footer */
+        padding: 20px 0;
+        width: 90%;
+        margin: auto;
+        box-sizing: border-box;
+        background: rgba(20, 20, 20, 0.9);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-/* Responsive Design */
-@media (max-width: 768px) {
+    /* Card Styling */
+    .sidebar-container {
+        background: rgba(20, 20, 20, 0.9);
+        padding: 40px;
+        border-radius: 15px;
+        height: 100%;
+        border: 1px solid #00FFFF;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        transition: all 0.3s ease-in-out;
+        /* animation: fadeIn 0.8s ease-in-out; */
+    }
+    
     .prompt-card {
-        width: 85%;
-        padding: 30px;
+        overflow-y: auto;  
+        scrollbar-width: none;
+        scroll-behavior: smooth;  
+        height: 100%;
     }
-
+    
+    /* Title Styling */
     .title {
-        font-size: 1.8rem;
-    }
-
-    .question h5 {
-        font-size: 1rem;
-    }
-
-    textarea {
-        font-size: 0.9rem;
-    }
-
-    .btn-primary {
-        font-size: 1rem;
-        padding: 10px 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .prompt-card {
-        width: 95%;
-        padding: 25px;
-    }
-
-    .title {
+        font-weight: bold;
+        margin-bottom: 20px;
         font-size: 1.5rem;
+        text-align: center;
+        color: #00FFFF;
+    }
+    
+    /* Description */
+    .description {
+        font-size: 1.1rem;
+        color: #00EEEE;
+        margin-bottom: 25px;
+    }
+    
+    /* Question Styling */
+    .question {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        gap: 5px;
+        background: rgba(20, 20, 20, 0.9);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        animation: fadeIn 0.8s ease-in-out;
+    
     }
 
-    .question h5 {
-        font-size: 0.9rem;
+    h5 {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #00FFFF;
     }
 
+    /* Textarea Styling */
     textarea {
-        font-size: 0.8rem;
-        padding: 10px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #00FFFF;
+        padding: 12px;
+        font-size: 1rem;
+        background: rgba(0, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease-in-out;
+    }
+
+    textarea:focus {
+        border-color: #00FFFF;
+        box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        outline: none;
+    }
+
+    /* Submit Button */
+    .submit-container {
+        text-align: center;
+        margin-top: 15px;
     }
 
     .btn-primary {
-        font-size: 1rem;
-        padding: 10px 14px;
+        padding: 12px 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        background: #00FFFF;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 255, 255, 0.4);
+        border: none;
+        color: black;
+        cursor: pointer;
     }
-}
+
+    .btn-primary:hover {
+        background: #00EEEE;
+        box-shadow: 0 0 10px #00FFFF;
+        transform: scale(1.05);
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .prompt-card {
+            width: 85%;
+            padding: 30px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+        }
+
+        .question h5 {
+            font-size: 1rem;
+        }
+
+        textarea {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+            padding: 10px 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .prompt-card {
+            width: 95%;
+            padding: 25px;
+        }
+
+        .title {
+            font-size: 1.5rem;
+        }
+
+        .question h5 {
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            font-size: 0.8rem;
+            padding: 10px;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+            padding: 10px 14px;
+        }
+    }
 </style>
 
 {% endblock %}

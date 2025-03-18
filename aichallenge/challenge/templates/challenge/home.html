@@ -1,14 +1,16 @@
 {% extends 'rounds/base.html' %}
 {% load static %}
 {% block content %}
+
 <style>
     /* Background Styling with Gradient */
     body {
         background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
         color: #00FFFF;
         overflow-x: hidden;
-        overflow-y: hidden; /* Removed page scrolling */
         font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        /* Ensures the full height is covered */
     }
 
     /* Hero Section */
@@ -43,9 +45,11 @@
             transform: translateY(100vh) translateX(0);
             opacity: 0.4;
         }
+
         50% {
             opacity: 0.8;
         }
+
         100% {
             transform: translateY(-100vh) translateX(20px);
             opacity: 0;
@@ -54,12 +58,15 @@
 
     /* Event Section */
     .event-section {
-        width: 75%;
-        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
         padding: 30px 0;
-        text-align: center;
         position: relative;
         z-index: 10;
+        gap: 10px;
     }
 
     /* Event Card Styling */
@@ -70,16 +77,17 @@
         overflow: hidden;
         padding: 20px;
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        max-width: 620px; /* Increased width */
-        height: 550px; /* Decreased height */
+        width: 90%;
         margin: auto;
         position: relative;
         z-index: 10;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
     }
 
     .event-card img {
-        width: 100%;
-        height: 180px;
+        width: 96%;
+        margin: 2%;
         object-fit: cover;
         border-radius: 10px;
     }
@@ -92,12 +100,12 @@
     .event-info h2 {
         font-size: 24px;
         font-weight: bold;
-        color: #00FFFF;
+        color: rgb(218, 179, 153);
     }
 
     .event-info p {
         font-size: 14px;
-        color: White;
+        color: white;
     }
 
     /* Countdown, Date & Prize Pool Styling */
@@ -149,7 +157,7 @@
     /* Registration Button */
     .register-btn {
         display: inline-block;
-        background:#FFD700;
+        background: #FFD700;
         color: #0F2027;
         padding: 10px 20px;
         font-size: 1.1rem;
@@ -165,32 +173,56 @@
         box-shadow: 0 0 10px #00FFFF;
     }
 
-     /* Added more spacing between header, footer, and event box */
-.header-spacing {
-    margin-bottom: 0px; /* Increased from 30px */
-}
+    /* Footer Spacing */
+    .footer-spacing {
+        height: 20px;
+        /* Reduced spacing as we fixed the footer positioning */
+    }
 
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .rules-container {
+            width: 70%;
+            padding: 30px;
+        }
+    }
 
-/* Ensures extra space between event section and footer */
-.footer-spacing {
-    margin-top: 120px; /* Increased from 80px */
-}
+    @media (max-width: 768px) {
+        .rules-container {
+            width: 85%;
+            padding: 25px;
+        }
 
-/* Ensures the event section has enough spacing */
-.event-section {
-    margin-bottom: 100px !important; /* Forces spacing */
-}
+        .rules-container h2 {
+            font-size: 24px;
+        }
 
+        .rules-container li {
+            font-size: 16px;
+            padding: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .rules-container {
+            width: 95%;
+            padding: 20px;
+        }
+
+        .rules-container h2 {
+            font-size: 22px;
+        }
+
+        .rules-container li {
+            font-size: 14px;
+            padding: 8px;
+        }
+    }
 </style>
 
 <!-- Floating Background Bubbles -->
-<div class="bubble"></div>
-<div class="bubble"></div>
-<div class="bubble"></div>
-<div class="bubble"></div>
-<div class="bubble"></div>
-
 <script>
+    document.body.style.overflowY = 'auto';
     document.addEventListener("DOMContentLoaded", function () {
         for (let i = 0; i < 15; i++) {
             let bubble = document.createElement("div");
@@ -200,56 +232,125 @@
             document.body.appendChild(bubble);
         }
     });
+
+
+    // Countdown Timer Script 
+    function updateCountdown(eventID, time) {
+        const eventDate = new Date(time).getTime();
+        const now = new Date().getTime();
+        const timeLeft = eventDate - now;
+        if(timeLeft < 1500)setTimeout(()=>location.reload(), timeLeft);
+// {% if challenge.round1_status == 'Upcoming' %}
+document.getElementById(`event-${eventID}-days`).innerText = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+document.getElementById(`event-${eventID}-hours`).innerText = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+// {% endif %}
+        document.getElementById(`event-${eventID}-minutes`).innerText = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById(`event-${eventID}-seconds`).innerText = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    }
+    let intervals = [];
 </script>
-
-{% comment %} <!-- Header Spacing -->
-<div class="header-spacing"></div> {% endcomment %}
-
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <!-- Event Section -->
 <section class="event-section">
     <div class="event-card">
-        <img src="{% static 'challenge/img/home_Image.png' %}" alt="Combat the Prompt">
-        <div class="event-info">
-            <h2>AI PROMPT COMBAT</h2>
-            <p >Organized by Department of CSE - Artificial Intelligence and Data Science</p>
-            <p>Sagar Institute of Science and Technology | Gandhinagar | Bhopal</p>
-            
-            <div class="event-meta">
-                <span>📅 April 3, 2025</span> 
+        <img class="h-[500px]" src="{% static 'challenge/img/home_Image.png' %}" alt="Combat the Prompt">
+        <div class="event-info self-center flex flex-col gap-[5px]">
+            <h2>{{challenge.event_name}}</h2>
+            <p class="w-[85%] mx-auto text-center">Organized by Department of CSE - Artificial Intelligence and Data
+                Science</p>
+            <p class="w-[85%] mx-auto text-center">Sagar Institute of Science and Technology | Gandhinagar | Bhopal</p>
+            <br>
+            {% comment %} <div class="event-meta">
+                <span>📅 April 3, 2025</span>
                 <span>🏆 Prize Pool ₹ 7000</span>
-            </div>
-            <div class="countdown-section">
+            </div> {% endcomment %}
+            <section class=" mx-auto flex w-[85%] flex-col items-baseline justify-center">
+                <div class="flex w-full items-center justify-between">
+                    <span class="text-md">From : {{challenge.round1_start_ts|date:"d-m-y h:i A" }}</span>
+                    <span class="text-md">To : {{challenge.round2_end_ts|date:"d-m-y h:i A" }}</span>
+                </div>
+                <div>Status : {{challenge.event_status}}</div>
+            </section>
+
+
+            {% if challenge.event_status == 'Upcoming' %}
+            <div class="countdown-section mt-5 w-[85%] mx-auto">
                 <h3>Time Remaining:</h3>
                 <div class="countdown-container" id="countdown">
-                    <div class="time-box"><span id="days"></span><span class="time-label">Days</span></div>
-                    <div class="time-box"><span id="hours"></span><span class="time-label">Hours</span></div>
-                    <div class="time-box"><span id="minutes"></span><span class="time-label">Minutes</span></div>
-                    <div class="time-box"><span id="seconds"></span><span class="time-label">Seconds</span></div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-days"></span><span
+                            class="time-label">Days</span>
+                    </div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-hours"></span><span
+                            class="time-label">Hours</span></div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-minutes"></span><span
+                            class="time-label">Minutes</span></div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-seconds"></span><span
+                            class="time-label">Seconds</span></div>
                 </div>
+
             </div>
-            <a href="{% url 'challenge:participate' challenge.id %}" class="register-btn">Register Now</a>
+            <br>
+            <a href="#" class="register-btn cursor-not-allowed w-fit-content mx-auto">Go To Competition</a>
+            
+            <script>
+                setInterval(updateCountdown, 1000, '{{ challenge.id }}', '{{ challenge.round1_start_ts.isoformat }}');
+            </script>
+            {% elif challenge.round1_status == 'Ongoing' %}
+            <div class="countdown-section mt-5 w-[85%] mx-auto">
+                <h3>Time Left for Round 1:</h3>
+                <div class="countdown-container" id="countdown">
+                    <div class="time-box"><span id="event-{{challenge.id}}-minutes"></span><span
+                            class="time-label">Minutes</span></div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-seconds"></span><span
+                            class="time-label">Seconds</span></div>
+                </div>
+
+            </div>
+            <br>
+            <a href="{% url 'challenge:get_task_r1' challenge.id %}" class="register-btn w-fit-content mx-auto">Go To Competition</a>
+            
+            <script>
+                setInterval(updateCountdown, 1000, '{{ challenge.id }}', '{{ challenge.round1_end_ts.isoformat }}');
+            </script>
+            {% elif challenge.round2_status == 'Ongoing' %}
+            <div class="countdown-section mt-5 w-[85%] mx-auto">
+                <h3>Time Left for Round 2:</h3>
+                <div class="countdown-container" id="countdown">
+                    <div class="time-box"><span id="event-{{challenge.id}}-minutes"></span><span
+                            class="time-label">Minutes</span></div>
+                    <div class="time-box"><span id="event-{{challenge.id}}-seconds"></span><span
+                            class="time-label">Seconds</span></div>
+                </div>
+
+            </div>
+            <br>
+            <a href="{% url 'challenge:get_task_r2' challenge.id %}" class="register-btn w-fit-content mx-auto">Go To Competition</a>
+            
+            <script>
+                setInterval(updateCountdown, 1000, '{{ challenge.id }}', '{{ challenge.round2_end_ts.isoformat }}');
+            </script>
+            {% elif challenge.event_status == 'Finished' %}
+            <br>
+            <div class="flex gap-3 items-center justify-center w-full">
+                <a href="{% url 'challenge:get_leaderboard_r1' challenge.id %}" class="register-btn"># Round 1</a>
+                <a href="{% url 'challenge:get_leaderboard_r2' challenge.id %}" class="register-btn"># Round 2</a>
+                <a href="{% url 'challenge:get_leaderboard' challenge.id %}" class="register-btn">Go To Leaderboard</a>
+            </div>
+            <a href="{% url 'challenge:get_leaderboard_r1' challenge.id %}" class="register-btn w-fit-content mx-auto">Certificate</a>
+
+            {% endif %}
+        </div>
+    </div>
+    <div class="event-card">
+        {% include 'challenge/components/rules.html' %}
+        <div class="event-info">
+            <h2>{{challenge.event_name}}</h2>
+            {% include 'challenge/components/rounds.html' with challenge=challenge participation=participation %}
         </div>
     </div>
 </section>
-<br>
-<br>
-<br>
-<script>
-    function updateCountdown() {
-        const eventDate = new Date("April 3, 2025 00:00:00").getTime();
-        const now = new Date().getTime();
-        const timeLeft = eventDate - now;
 
-        document.getElementById("days").innerText = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        document.getElementById("hours").innerText = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        document.getElementById("minutes").innerText = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        document.getElementById("seconds").innerText = Math.floor((timeLeft % (1000 * 60)) / 1000);
-    }
-
-    setInterval(updateCountdown, 1000);
-</script>
 
 <!-- Footer Spacing -->
 <div class="footer-spacing"></div>
-
 {% endblock %}

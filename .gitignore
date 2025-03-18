@@ -3,4 +3,4 @@ env/
 __pycache__/
 .ipynb_checkpoints/
 *.sqlite3
-Prompt_Combat/
+ai_prompt_combat/

@@ -4,21 +4,26 @@
 <style>
     /* Use the same background and color scheme as the home page */
     body {
-        background-color: #121212; /* Update to match home page */
-        color: #ffffff; /* Ensure consistency */
+        background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        color: #00FFFF;
         font-family: 'Poppins', sans-serif;
     }
     
     .contact-container {
-        text-align: center;
-        padding: 50px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 150px); /* Account for header and footer */
+        padding: 40px 0;
+        overflow-y: auto; /* Enable vertical scrolling when needed */
     }
 
     .contact-title {
         font-size: 2.5rem;
         font-weight: bold;
         text-transform: uppercase;
-        color: #00bfff; /* Match primary theme */
+        color: #00FFFF; /* Match primary theme */
         text-shadow: 2px 2px 15px rgba(0, 191, 255, 0.7);
     }
 
@@ -30,7 +35,7 @@
     }
 
     .social-icons a {
-        background: #00bfff; /* Adjusted to match home */
+        background:rgb(0, 5, 5); /* Adjusted to match home */
         padding: 12px;
         border-radius: 50%;
         display: flex;
@@ -74,7 +79,7 @@
     }
 
     .contact-card h3 {
-        color: #00bfff;
+        color: #00FFFF;
         font-size: 1.2rem;
         margin-bottom: 10px;
     }
@@ -126,14 +131,16 @@
     <div class="contact-card-container">
         <div class="contact-card">
             <h3>Helpdesk</h3>
-            <p>Aashutosh Tiwari<br>+91 8435627811</p>
+            <p>Shubh Narayan Dubey<br>+91 6387183446</p>
             {% comment %} <a href="https://wa.me/918435627811" class="whatsapp-icon">
                 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
             </a> {% endcomment %}
+            <p>Dharmendra Singh Parmar <br>+91 6387183446</p>
         </div>
         
         <div class="contact-card">
             <h3>Event Coordinators</h3>
+            <p>Aashutosh Tiwari<br>+91 8435627811</p>
             <p>Pal Priya Sandeep Kumar<br>+91 737971251</p>
             {% comment %} <a href="https://wa.me/91737971251" class="whatsapp-icon">
                 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">

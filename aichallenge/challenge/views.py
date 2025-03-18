@@ -16,8 +16,13 @@ def get_challenge(request, challenge_no):
     try:
         print(challenge_no)
         event = Event.objects.get(pk=challenge_no)
+        participation = Participation.objects.filter(event=event, user=request.user)
+        
+        if participation.exists():
+            participant = participation.first()
         # return HttpResponse(event)
-        return render(request, 'challenge/home.html', {"challenge": event})
+        context = {"challenge": event, "participation": participant}
+        return render(request, 'challenge/home.html', context)
 
     except Event.DoesNotExist:
         return HttpResponse("Challenge not found")
@@ -29,24 +34,26 @@ def participate(request, challenge_no):
     """take participation in challenge"""
     try:
         print(challenge_no)
-        participaint = Participation.objects.filter(event__id=challenge_no, user=request.user)
+        event = Event.objects.get(pk=challenge_no)
+        if event.event_status() == "Finished":
+            messages.warning(request, "Challenge has already finished")
+            return redirect('challenge:all_challenge')
+
+        participaint = Participation.objects.filter(event=event, user=request.user)
 
         if participaint.exists():
             messages.info(request, "You have already participated in this challenge")
-            return redirect('challenge:all_challenge')
+            return redirect('challenge:challenge_detail', challenge_no=challenge_no)
 
         else:
-            event = Event.objects.get(pk=challenge_no)
             participation = Participation(event=event, user=request.user)
             participation.save()
-            messages.success(request, "You have successfully participated in this challenge")
-            return redirect('all_challenge')
-
-        # return HttpResponse(event)
-        return render(request, 'challenge/index.html', {"challenge_no": challenge_no})
+            messages.success(request, f"You have successfully participated in '{participation.event.event_name}' challenge")
+            return redirect('challenge:challenge_detail', challenge_no=challenge_no)
 
     except Event.DoesNotExist:
-        return HttpResponse("Challenge not found")
+        messages.error(request, "Challenge not found")
+        return redirect('challenge:all_challenge')
 
 def get_leaderboard(request, challenge_no):
     """show leaderboard of a challenge"""

@@ -4,7 +4,7 @@ import datetime as dt
 
 # Create your models here.
 class Event(models.Model):
-    event_name = models.CharField(max_length=100)
+    event_name = models.CharField(max_length=100, blank=False, null=False)
     event_desc = models.TextField()
     event_rules = models.TextField()
     # round 1
@@ -20,6 +20,33 @@ class Event(models.Model):
 
     def __str__(self):
         return self.event_name
+
+    def event_status(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        if self.round1_start_ts < now < self.round2_end_ts:
+            return "Ongoing"
+        elif now > self.round2_end_ts:
+            return "Finished"
+        else:
+            return "Upcoming"
+
+    def round1_status(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        if self.round1_start_ts < now < self.round1_end_ts:
+            return "Ongoing"
+        elif now > self.round1_end_ts:
+            return "Finished"
+        else:
+            return "Upcoming"
+
+    def round2_status(self):
+        now = dt.datetime.now(dt.timezone.utc)
+        if self.round2_start_ts < now < self.round2_end_ts:
+            return "Ongoing"
+        elif now > self.round2_end_ts:
+            return "Finished"
+        else:
+            return "Upcoming"
     
     def save(self, *args, **kwargs):
         self.last_updated = dt.datetime.now(dt.timezone.utc)
@@ -46,6 +73,31 @@ class Participation(models.Model):
 
     def __str__(self):
         return f'{self.event} - {self.user}'
+
+    def round1_status(self):
+        if self.round1_finish_time or self.event.round1_status() == "Finished":
+            return "Finished"
+        else:
+            return "Ongoing"
+
+    def round2_status(self):
+        if self.round2_finish_time or self.event.round2_status() == "Finished":
+            return "Finished"
+        else:
+            return "Ongoing"
+
+    def event_status(self):
+        if self.finish_time or self.event.event_status() == "Finished":
+            return "Finished"
+        else:
+            return "Ongoing"
+
+    # def qualify(self):
+    #     e = self.event
+    #     if self.r1_finish_time <= e.round1_end_ts:
+    #         return "Finished"
+    #     else:
+    #         return "Ongoing"
 
     def save(self, *args, **kwargs):
         self.last_updated = dt.datetime.now(dt.timezone.utc)
