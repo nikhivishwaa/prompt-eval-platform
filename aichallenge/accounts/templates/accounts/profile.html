@@ -1,0 +1,192 @@
+{% extends 'rounds/base.html' %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <h2 class="profile-title">My Profile</h2>
+        
+        <div class="profile-info">
+            <div class="info-group">
+                <label>Full Name:</label>
+                <span>{{ request.user.get_full_name }}</span>
+            </div>
+            
+            <div class="info-group">
+                <label>Email:</label>
+                <span>{{ request.user.email }}</span>
+            </div>
+            
+            <div class="info-group">
+                <label>Gender:</label>
+                <span>{{ request.user.gender }}</span>
+            </div>
+            
+            <div class="info-group">
+                <label>Mobile:</label>
+                <span>{{ request.user.phone }}</span>
+            </div>
+            
+            <div class="info-group">
+                <label>College:</label>
+                <span>{{ request.user.college }}</span>
+            </div>
+            
+            <div class="info-group">
+                <label>Member Since:</label>
+                <span>{{ request.user.created_at|date:"F d, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 150px);
+        padding: 40px 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .profile-card {
+        background: rgba(20, 20, 20, 0.9);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        width: 90%;
+        max-width: 600px;
+        color: #00FFFF;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .profile-title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2rem;
+        color: #00FFFF;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+
+    .profile-info {
+        margin-bottom: 30px;
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(0, 255, 255, 0.1);
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .info-group:hover {
+        background: rgba(0, 255, 255, 0.15);
+        transform: translateX(5px);
+    }
+
+    .info-group label {
+        font-weight: bold;
+        color: #00FFFF;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    }
+
+    .info-group span {
+        color: #ffffff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn-danger {
+        background: #ff4444;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: #cc0000;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .profile-card {
+            padding: 25px;
+            width: 95%;
+        }
+
+        .profile-title {
+            font-size: 1.8rem;
+        }
+
+        .info-group {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .info-group label {
+            font-size: 0.9rem;
+        }
+
+        .info-group span {
+            font-size: 1rem;
+        }
+
+        .btn-danger {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-container {
+            padding: 20px 10px;
+        }
+
+        .profile-card {
+            padding: 20px;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+        }
+
+        .info-group {
+            padding: 10px;
+        }
+
+        .info-group label {
+            font-size: 0.85rem;
+        }
+
+        .info-group span {
+            font-size: 0.95rem;
+        }
+    }
+</style>
+{% endblock %} 

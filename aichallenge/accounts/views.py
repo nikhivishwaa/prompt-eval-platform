@@ -201,7 +201,7 @@ def profileform(request):
 def userauth(request):
     if request.user.is_authenticated:
         # return redirect('send_otp')
-        return redirect('/challenge')
+        return redirect('home')
         
 
     elif request.method == 'POST':
@@ -215,7 +215,8 @@ def userauth(request):
             print('user', user, 'logged in')
             if user is not None:
                 login(request, user)
-                return redirect('send_otp')             
+                return redirect('home')             
+                # return redirect('send_otp')             
 
             else:
                 messages.error(request, "Invalid Credentials")
@@ -353,5 +354,10 @@ def contact(request):
 def rules(request):
     return render(request, 'accounts/rules.html')
 
-# def home(request):
-#     return render(request, 'accounts/home.html')
+def home(request):
+    return redirect('challenge:all_challenge')
+
+
+@login_required(login_url="login")
+def user_profile(request):
+    return render(request, 'accounts/profile.html')

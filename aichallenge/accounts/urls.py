@@ -14,11 +14,12 @@ urlpatterns = [
     path('rules/', views.rules, name='rules'),
 
     # other functionality
-    path('api/profile/', views.profile_api, name='profile'),
-    path("profile/", views.profile, name="profile"),
+    # path('api/profile/', views.profile_api, name='profile'),
+    path("profile/", views.user_profile, name="profile"),
     path('verifyemail/', views.verifyemail, name='verifyemail'),
     path('send_otp/', views.verification_otp, name='send_otp'),
     path('forgotpassword/', views.forgotpasswordotp, name='forgotpassword'),
     path('newpassword/', views.newpassword, name='newpassword'),
     path('profileform/', views.profileform, name='profileform'),
+    path('', views.home, name='home'),
 ]

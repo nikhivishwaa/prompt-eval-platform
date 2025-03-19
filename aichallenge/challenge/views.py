@@ -3,26 +3,27 @@ from challenge.models import Event, Participation
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from temp.cache import get_challenge
 
-# Create your views here.
 def list_challenges(request):
-    events = Event.objects.all()
+    events = Event.objects.filter(open_event=True)
 
     return render(request, 'challenge/index.html', {"challenges": events})
-    # return HttpResponse(events)
 
 
-def get_challenge(request, challenge_no):
+def get_challenge_home(request, challenge_no):
     try:
-        print(challenge_no)
-        event = Event.objects.get(pk=challenge_no)
+        event = get_challenge(challenge_no)
+        if not event.open_event:
+            return HttpResponse("Challenge not found")
         participation = Participation.objects.filter(event=event, user=request.user)
         
         if participation.exists():
             participant = participation.first()
-        # return HttpResponse(event)
-        context = {"challenge": event, "participation": participant}
-        return render(request, 'challenge/home.html', context)
+            context = {"challenge": event, "participation": participant}
+            return render(request, 'challenge/home.html', context)
+        else:
+            return HttpResponse("You haven't participated in the challenge")
 
     except Event.DoesNotExist:
         return HttpResponse("Challenge not found")
@@ -33,8 +34,11 @@ def get_challenge(request, challenge_no):
 def participate(request, challenge_no):
     """take participation in challenge"""
     try:
-        print(challenge_no)
-        event = Event.objects.get(pk=challenge_no)
+        event = get_challenge(challenge_no)
+
+        if event.open_event == False:
+            messages.error(request, "Challenge is not open for participation")
+            return redirect('challenge:all_challenge')
         if event.event_status() == "Finished":
             messages.warning(request, "Challenge has already finished")
             return redirect('challenge:all_challenge')
@@ -58,9 +62,9 @@ def participate(request, challenge_no):
 def get_leaderboard(request, challenge_no):
     """show leaderboard of a challenge"""
     try:
-        print(challenge_no)
-        leaderboard = Participation.objects.filter(event__id = challenge_no)
-        # return HttpResponse(event)
+        event = get_challenge(challenge_no)
+        leaderboard = Participation.objects.filter(event = event)
+        
         return render(request, 'challenge/leaderboard.html', {"leaderboard": leaderboard})
 
     except Event.DoesNotExist:

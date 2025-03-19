@@ -5,57 +5,39 @@
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <script>
     document.body.style.overflowY = 'auto';
+    document.getElementsByTagName("main")[0].style.padding = '0px'
 </script>
 <div class="level-container">
-    <section class="prompt-card">
-    {% for task in tasks %}
+    <section class="prompt-card" id="prompt-card">
+        {% for task in tasks %}
         <div class="question w-[90%] mx-auto" id="task-{{forloop.counter}}">
             <h5>{{forloop.counter}}. {{task.title}}:</h5>
             <p class="text-[12px]"><span class="text-red-600">*</span> {{task.desc}}</p>
             <p>{{task.task.detail}}</p>
-            <form method="post" class="w-full"
-                onsubmit="return submitTask(event, '{{forloop.counter}}', '{{task.task.id}}', `{% url 'challenge:submit_task_r1' challenge_no task.task.id %}`)">
-                {% csrf_token %}
-                <textarea class="form-control" id="prompt-{{task.task.id}}" name="prompt" rows="3" required></textarea>
+            {% if challenge.round1_status == 'Finished' %}
+            <div class="w-full"><input type="hidden" value="{{forloop.counter}}" id="task-id-{{task.task.id}}">
+                <textarea class="form-control" id="prompt-{{forloop.counter}}" name="prompt" rows="13" readonly
+                    required></textarea>
                 <div class="text-center submit-container">
-                    <button type="submit" class="btn-primary">Submit</button>
+                    <button type="submit" class="btn-primary" id="submit-btn-task-{{forloop.counter}}"
+                        disabled>Submit</button>
+                </div>
+            </div>
+            {% else %}
+            <form method="post" class="w-full"
+                onsubmit="return submitTask(event, '{{forloop.counter}}', '{{task.task.id}}', `{% url 'challenge:submit_task_r1' challenge.id task.task.id %}`)">
+                {% csrf_token %}
+                <input type="hidden" value="{{forloop.counter}}" id="task-id-{{task.task.id}}">
+                <textarea class="form-control" id="prompt-{{forloop.counter}}" name="prompt" rows="13"
+                    required></textarea>
+                <div class="text-center submit-container">
+                    <button type="submit" class="btn-primary" id="submit-btn-task-{{forloop.counter}}">Submit</button>
                 </div>
             </form>
-
+            {% endif %}
         </div>
         {% endfor %}
     </section>
-    <script>
-        async function submitTask(e, idx, taskId, url) {
-            e.preventDefault()
-            let prompt = document.getElementById(`prompt-${taskId}`).value;
-            if (prompt.value.trim() === '') {
-                alert('Please write a prompt')
-                return false
-            }
-            let csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
-            let form = new FormData();
-            form.append('prompt', prompt)
-            form.append('csrfmiddlewaretoken', csrfmiddlewaretoken)
-
-            const allow = confirm('You Want to Submit Task #' + idx + '?')
-            if (!allow) {
-                return false
-            }
-            const response = await fetch(url, {
-                method: 'POST',
-                body: form
-            })
-
-            const data = response.json()
-            console.log({ data })
-            if (response.ok) {
-                alert(`Task #${idx} Submitted Successfully`)
-                document.getElementById('prompt-' + taskId).readOnly = true;
-            }
-            return false
-        }
-    </script>
 
     <aside class="flex flex-col gap-1 sidebar-container self-start w-[94%] mr-auto">
         <!-- Sidebar content goes here -->
@@ -68,32 +50,229 @@
             <thead>
                 <tr>
                     <th>Task ID</th>
-                    <th>Title</th>
-                    <th>Description</th>
+                    <th>Submitted</th>
+                    <th>Evaluated</th>
+                    <th>Score</th>
                 </tr>
             </thead>
             <tbody>
                 {% for task in tasks %}
                 <tr>
-                    <td><a href="#task-{{ forloop.counter }}"># {{ forloop.counter }}</a></td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td><a href="#task-{{ forloop.counter }}" onclick="handleSmoothScroll()"># {{ forloop.counter }}</a>
+                    </td>
+                    <td id="task-{{ forloop.counter }}-submitted">-</td>
+                    <td id="task-{{ forloop.counter }}-evaluated">-</td>
+                    <td id="task-{{ forloop.counter }}-score">-</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if challenge.round1_status == 'Ongoing' %}
+        <div class="countdown-section mt-5 w-[85%] mx-auto">
+            <h3>Remaining Time</h3>
+            <div class="countdown-container" id="countdown">
+                <div class="time-box"><span id="event-{{challenge.id}}-minutes"></span><span
+                        class="time-label">Minutes</span></div>
+                <div class="time-box"><span id="event-{{challenge.id}}-seconds"></span><span
+                        class="time-label">Seconds</span></div>
+            </div>
+
+        </div>
+
+        <a href="{% url 'challenge:get_leaderboard_r1' challenge.id %}"
+            class="register-btn w-fit-content mx-auto">Leaderborard</a>
+        {% elif challenge.round1_status != 'Upcoming' %}
+        <section class="flex justify-between gap-2 items-center my-2">
+            <div
+                class="rounded-full border-[2px] aspect-[1/1] gap-[10px] p-4 bg-[#203330] flex justify-center items-center w-[fit-content]">
+                <span id="total-score" class="text-md text-white">98.0</span><span
+                    class="text-yellow-500 text-[30px]">/</span>
+                <span class="text-sm">{{total_score}}</span>
+                <span class="text-sm text-gray-200 absolute bottom-2">Total Score</span>
+
+            </div>
+            <a href="{% url 'challenge:get_leaderboard_r1' challenge.id %}" target="_blank"
+                class="register-btn w-fit-content mx-auto">Leaderborard</a>
+        </section>
+        {% endif %}
     </aside>
 </div>
 
 
+<script>
+    async function submitTask(e, idx, taskId, url) {
+        e.preventDefault()
+        let prompt = document.getElementById(`prompt-${idx}`).value;
+        if (prompt.trim() === '') {
+            alert('Please write a prompt')
+            return false
+        }
+        let csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+        let form = new FormData();
+        form.append('prompt', prompt)
+        form.append('csrfmiddlewaretoken', csrfmiddlewaretoken)
+
+        const allow = confirm(`You Want to Submit Task #${idx} ?`)
+        if (!allow) {
+            return false
+        }
+        const response = await fetch(url, {
+            method: 'POST',
+            body: form
+        })
+
+        const data = await response.json()
+        console.log({ data })
+        if (response.ok) {
+            document.getElementById(`task-${idx}-submitted`).innerHTML = '✅';
+            alert(`Task #${idx} Submitted Successfully`)
+            document.getElementById(`prompt-${idx}`).readOnly = true;
+            const submitButton = document.getElementById(`submit-btn-task-${idx}`)
+            submitButton.disabled = true;
+            submitButton.style.cursor = 'not-allowed';
+
+
+            if (data.evaluated) {
+                document.getElementById(`task-${idx}-evaluated`).innerHTML = '✅';
+                document.getElementById(`task-${idx}-score`).innerHTML = data.score;
+            }
+            getScore()
+        } else {
+            alert('Something went wrong')
+        }
+        return false
+    }
+    async function getScore() {
+        const response = await fetch(`{% url 'challenge:get_score_r1' challenge.id %}`)
+        const data = await response.json()
+        if (data.score) {
+            document.getElementById('total-score').innerHTML = data.score;
+        }
+    }
+
+    async function getSubmission() {
+        const response = await fetch(`{% url 'challenge:get_submission_r1' challenge.id %}`)
+        const data = await response.json()
+        console.log({ data })
+        if (data.length) {
+            for (const task of data) {
+                const idx = document.getElementById(`task-id-${task.id}`).value
+
+                document.getElementById(`task-${idx}-submitted`).innerHTML = '✅';
+                const prompt = document.getElementById(`prompt-${idx}`)
+                prompt.readOnly = true;
+                prompt.value = task.prompt;
+
+                const submitButton = document.getElementById(`submit-btn-task-${idx}`)
+                submitButton.disabled = true;
+                submitButton.style.cursor = 'not-allowed';
+
+                if (task.evaluated) {
+                    document.getElementById(`task-${idx}-evaluated`).innerHTML = '✅';
+                    document.getElementById(`task-${idx}-score`).innerHTML = task.score;
+                }
+            }
+        }
+        getScore()
+    }
+
+    function handleSmoothScroll(params) {
+        document.getElementById('prompt-card').scrollBy(0, -100)
+    }
+    getSubmission()
+
+    function updateCountdown() {
+        const round1_ts = new Date('{{challenge.round1_end_ts.isoformat}}').getTime();
+        const now = new Date().getTime();
+        const timeLeft = round1_ts - now;
+        if (timeLeft < 1500) setTimeout(() => location.reload(), timeLeft);
+        document.getElementById(`event-{{ challenge.id }}-minutes`).innerText = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById(`event-{{ challenge.id }}-seconds`).innerText = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    }
+    // {% if challenge.round1_status == 'Ongoing' %}
+    setInterval(updateCountdown, 1000);
+    // {% endif %}      
+</script>
+
 <style>
+    th {
+        height: 40px;
+        vertical-align: center;
+        /* text-align: center; */
+        border-bottom: 1px solid #00FFFF;
+    }
+
+    td {
+        height: 50px;
+        vertical-align: center;
+        text-align: center;
+    }
+
+    tr:nth-child(even) {
+        background-color: #332028;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #203330;
+    }
+
+    /* Countdown Styling */
+    .countdown-section {
+        text-align: center;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+
+    .countdown-container {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .time-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #00FFFF;
+    }
+
+    .time-label {
+        font-size: 0.8rem;
+        font-weight: normal;
+    }
+
+    /* Registration Button */
+    .register-btn {
+        display: inline-block;
+        background: #FFD700;
+        color: #0F2027;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.2s ease-in-out;
+        margin-top: 10px;
+    }
+
+    .register-btn:hover {
+        background: #00EEEE;
+        box-shadow: 0 0 10px #00FFFF;
+    }
+
+
     /* Full Page Styling */
     .level-container {
         display: grid;
         grid-template-columns: 6fr 3fr;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        height: 100%;
         /* Account for header and footer */
         padding: 20px 0;
         width: 90%;
@@ -107,20 +286,23 @@
         background: rgba(20, 20, 20, 0.9);
         padding: 40px;
         border-radius: 15px;
-        height: 100%;
+        height: fit-content;
+        position: sticky;
+        top: 90px;
         border: 1px solid #00FFFF;
         box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
         transition: all 0.3s ease-in-out;
         /* animation: fadeIn 0.8s ease-in-out; */
     }
-    
+
     .prompt-card {
-        overflow-y: auto;  
+        overflow-y: auto;
         scrollbar-width: none;
-        scroll-behavior: smooth;  
+        scroll-behavior: smooth;
         height: 100%;
+
     }
-    
+
     /* Title Styling */
     .title {
         font-weight: bold;
@@ -129,14 +311,14 @@
         text-align: center;
         color: #00FFFF;
     }
-    
+
     /* Description */
     .description {
         font-size: 1.1rem;
         color: #00EEEE;
         margin-bottom: 25px;
     }
-    
+
     /* Question Styling */
     .question {
         margin-bottom: 20px;
@@ -152,7 +334,7 @@
         box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         animation: fadeIn 0.8s ease-in-out;
-    
+
     }
 
     h5 {
@@ -197,6 +379,9 @@
         border: none;
         color: black;
         cursor: pointer;
+        /* {% if challenge.round1_status == 'Finished' %} */
+        cursor: not-allowed;
+        /* {% endif %} */
     }
 
     .btn-primary:hover {

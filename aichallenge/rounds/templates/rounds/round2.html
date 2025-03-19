@@ -1,102 +1,583 @@
-{% extends 'round1/base.html' %}
+{% extends 'rounds/base.html' %}
 {% load static %}
 
 {% block content %}
-
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>
+    document.body.style.overflowY = 'auto';
+    document.getElementsByTagName("main")[0].style.padding = '0px'
+</script>
 <div class="level-container">
-    <div class="upload-card">
+    <section class="prompt-card" id="prompt-card">
+        {% for task in tasks %}
+        <div class="question w-[90%] mx-auto" id="task-{{forloop.counter}}">
+            <h5>{{forloop.counter}}. {{task.title}}:</h5>
+            <p class="text-[12px]"><span class="text-red-600">*</span> {{task.desc}}</p>
+            <p>{{task.task.detail}}</p>
+            <!-- Reference Image -->
+            <div class="text-center w-full">
+                <img src="{{task.task.ref_image.url}}" class="img-fluid reference-img" alt="AI Prompt Combat">
+            </div>
+            
+        {% if challenge.round2_status == 'Finished' %}
+            <div class="w-full">
+                <input type="hidden" value="{{forloop.counter}}" id="task-id-{{task.task.id}}">
+                <div class="upload-box">
+                    <label class="form-label">Upload Your Image:</label>
+                    <input type="file" accept=".png, .jpg, .jpeg" class="form-control file-input"
+                        id="task-{{forloop.counter}}-image" name="user_image" onclick="return false" readonly required>
+                </div>
+                <div class="text-center submit-container">
+                    <button type="submit" class="btn-primary" id="submit-btn-task-{{forloop.counter}}" disabled>Submit</button>
+                </div>
+            </div>
+            {% else %}
+            <form method="post" class="w-full"
+                onsubmit="return submitTask(event, '{{forloop.counter}}', '{{task.task.id}}', `{% url 'challenge:submit_task_r2' challenge.id task.task.id %}`)">
+                {% csrf_token %}
+                <input type="hidden" value="{{forloop.counter}}" id="task-id-{{task.task.id}}">
+                <div class="upload-box">
+                    <label class="form-label">Upload Your Image:</label>
+                    <input type="file" accept=".png, .jpg, .jpeg" onchange="handlePreview(this)" class="form-control file-input"
+                        id="task-{{forloop.counter}}-image" name="user_image" required>
+                </div>
+                <div class="text-center submit-container">
+                    <button type="submit" class="btn-primary" id="submit-btn-task-{{forloop.counter}}">Submit</button>
+                </div>
+            </form>
+        {% endif %}
+            <div class="text-center relative" id="preview-container-{{forloop.counter}}" style="display: none;">
+                <span class="preview-patch">Preview</span>
+                <img src="{{task.task.ref_image.url}}" id="preview-img-{{forloop.counter}}"
+                    class="img-fluid reference-img mb-0" alt="AI Prompt Combat">
+                <div class="preview-overlay"></div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </section>
+
+    <aside class="flex flex-col gap-1 sidebar-container self-start w-[94%] mr-auto">
+        <!-- Sidebar content goes here -->
         <h2 class="title">Level 2: Image Generation</h2>
         <p class="text-center description">
             Observe the reference image below and upload your generated image that closely matches it.
         </p>
 
-        <!-- Reference Image -->
-        <div class="text-center">
-            <img src="{% static 'challenge/img/home_Image.png' %}" class="img-fluid reference-img" alt="AI Prompt Combat">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Submitted</th>
+                    <th>Evaluated</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td><a href="#task-{{ forloop.counter }}" onclick="handleSmoothScroll()"># {{ forloop.counter }}</a>
+                    </td>
+                    <td id="task-{{ forloop.counter }}-submitted">-</td>
+                    <td id="task-{{ forloop.counter }}-evaluated">-</td>
+                    <td id="task-{{ forloop.counter }}-score">-</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if challenge.round2_status == 'Ongoing' %}
+        <div class="countdown-section mt-5 w-[85%] mx-auto">
+            <h3>Remaining Time</h3>
+            <div class="countdown-container" id="countdown">
+                <div class="time-box"><span id="event-{{challenge.id}}-minutes"></span><span
+                        class="time-label">Minutes</span></div>
+                <div class="time-box"><span id="event-{{challenge.id}}-seconds"></span><span
+                        class="time-label">Seconds</span></div>
+            </div>
+
         </div>
 
-        <!-- Upload Form -->
-        <form method="post" action="" enctype="multipart/form-data">
-            {% csrf_token %}
+        <a href="{% url 'challenge:get_leaderboard_r2' challenge.id %}"
+            class="register-btn w-fit-content mx-auto">Leaderborard</a>
+        {% elif challenge.round2_status != 'Upcoming' %}
+        <section class="flex justify-between gap-2 items-center my-2">
+            <div
+                class="rounded-full border-[2px] aspect-[1/1] gap-[10px] p-4 bg-[#203330] flex justify-center items-center w-[fit-content]">
+                <span id="total-score" class="text-md text-white">98.0</span><span
+                    class="text-yellow-500 text-[30px]">/</span>
+                <span class="text-sm">{{total_score}}</span>
+                <span class="text-sm text-gray-200 absolute bottom-2">Total Score</span>
 
-            <div class="upload-box">
-                <label class="form-label">Upload Your Image:</label>
-                <input type="file" accept="image/*" class="form-control file-input" name="user_image" required>
             </div>
-
-            <div class="text-center submit-container">
-                <button type="submit" class="btn-primary">Upload</button>
-            </div>
-        </form>
-    </div>
+            <a href="{% url 'challenge:get_leaderboard_r2' challenge.id %}" target="_blank"
+                class="register-btn w-fit-content mx-auto">Leaderborard</a>
+        </section>
+        {% endif %}
+    </aside>
 </div>
 
 
+<script>
+    function handlePreview(e) {
+        console.log(e)
+        const file = e.files[0];
+        const idx = e.id.split('-')[1];
+        console.log(idx, file);
+        img = URL.createObjectURL(file)
+        document.getElementById('preview-img-' + idx).src = img;
+        document.getElementById('preview-container-' + idx).style.display = 'block';
+    }
+
+    async function submitTask(e, idx, taskId, url) {
+        e.preventDefault()
+        let image = document.getElementById(`task-${idx}-image`).files[0];
+        if (!image) {
+            alert('Please upload an image')
+            return false
+        }
+        let csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value
+        let form = new FormData();
+        form.append('generated_image', image)
+        form.append('csrfmiddlewaretoken', csrfmiddlewaretoken)
+
+        const allow = confirm(`You Want to Submit Task #${idx} ?`)
+        if (!allow) {
+            return false
+        }
+        const response = await fetch(url, {
+            method: 'POST',
+            body: form
+        })
+
+        const data = await response.json()
+        console.log({ data })
+        if (response.ok) {
+            document.getElementById(`task-${idx}-submitted`).innerHTML = '✅';
+            alert(`Task #${idx} Submitted Successfully`)
+            // document.getElementById(`prompt-${idx}`).readOnly = true;
+            const submitButton = document.getElementById(`submit-btn-task-${idx}`)
+            submitButton.disabled = true;
+            submitButton.style.cursor = 'not-allowed';
+
+            const image_input = document.getElementById(`task-${idx}-image`)
+            image_input.readOnly = true;
+            image_input.onclick = (e) => e.preventDefault()
+            image_input.style.borderColor = '#555a5a';
+            image_input.style.cursor = 'not-allowed';
+
+            if (data.evaluated) {
+                document.getElementById(`task-${idx}-evaluated`).innerHTML = '✅';
+                document.getElementById(`task-${idx}-score`).innerHTML = data.score;
+            }
+            getScore()
+        } else {
+            alert('Something went wrong')
+        }
+        return false
+    }
+    async function getScore() {
+        const response = await fetch(`{% url 'challenge:get_score_r2' challenge.id %}`)
+        const data = await response.json()
+        if (data.score) {
+            document.getElementById('total-score').innerHTML = data.score;
+        }
+    }
+
+    async function getSubmission() {
+        const response = await fetch(`{% url 'challenge:get_submission_r2' challenge.id %}`)
+        const data = await response.json()
+        console.log({ data })
+        if (data.length) {
+            for (const task of data) {
+                const idx = document.getElementById(`task-id-${task.id}`).value
+
+                document.getElementById(`task-${idx}-submitted`).innerHTML = '✅';
+                
+                
+                const previewImg = document.getElementById('preview-img-' + idx)
+
+                const img_url = previewImg.src.split('/').slice(0, -2).join('/') + '/' + task.generated_image
+                previewImg.src = img_url;
+                document.getElementById('preview-container-' + idx).style.display = 'block';
+                
+                if (task.evaluated) {
+                    document.getElementById(`task-${idx}-evaluated`).innerHTML = '✅';
+                    document.getElementById(`task-${idx}-score`).innerHTML = task.score;
+                    // disable submission
+                    const submitButton = document.getElementById(`submit-btn-task-${idx}`)
+                    submitButton.disabled = true;
+                    submitButton.style.cursor = 'not-allowed';
+                    // prevent image upload
+                    const image_input = document.getElementById(`task-${idx}-image`)
+                    image_input.readOnly = true;
+                    image_input.onclick = (e) => e.preventDefault()
+                    image_input.style.borderColor = '#555a5a';
+                    image_input.style.cursor = 'not-allowed';
+                }
+            }
+        }
+        getScore()
+    }
+
+    function handleSmoothScroll(params) {
+        document.getElementById('prompt-card').scrollBy(0, -100)
+    }
+    getSubmission()
+
+    function updateCountdown() {
+        const round2_ts = new Date('{{challenge.round2_end_ts.isoformat}}').getTime();
+        const now = new Date().getTime();
+        const timeLeft = round2_ts - now;
+        if (timeLeft < 1500) setTimeout(() => location.reload(), timeLeft);
+        document.getElementById(`event-{{ challenge.id }}-minutes`).innerText = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById(`event-{{ challenge.id }}-seconds`).innerText = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    }
+    // {% if challenge.round2_status == 'Ongoing' %}
+    setInterval(updateCountdown, 1000);
+    // {% endif %}      
+</script>
+
 <style>
-    /* Full Page Styling */
-    .level-container {
+    .preview-patch {
+        background: #ffd700;
+        color: black;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 6px;
+        padding: 4px 10px;
+        box-shadow: 3px 2px 7px 0px #6767ec;
+        left: 2%;
+        top: 5%;
+        position: absolute;
+        z-index: 1000;
+    }
+
+    .preview-overlay {
+        top: 0;
+        background: linear-gradient(68deg, #0018ff2e, #ff777754);
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        z-index: 500;
+        box-sizing: border-box;
+        border-radius: 12px;
+    }
+
+    th {
+        height: 40px;
+        vertical-align: center;
+        /* text-align: center; */
+        border-bottom: 1px solid #00FFFF;
+    }
+
+    td {
+        height: 50px;
+        vertical-align: center;
+        text-align: center;
+    }
+
+    tr:nth-child(even) {
+        background-color: #332028;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #203330;
+    }
+
+    /* Countdown Styling */
+    .countdown-section {
+        text-align: center;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+
+    .countdown-container {
         display: flex;
         justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 150px); /* Account for header and footer */
-        padding: 40px 0;
-        overflow-y: auto; /* Enable vertical scrolling when needed */
+        gap: 12px;
     }
-    
+
+    .time-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #00FFFF;
+    }
+
+    .time-label {
+        font-size: 0.8rem;
+        font-weight: normal;
+    }
+
+    /* Registration Button */
+    .register-btn {
+        display: inline-block;
+        background: #FFD700;
+        color: #0F2027;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.2s ease-in-out;
+        margin-top: 10px;
+    }
+
+    .register-btn:hover {
+        background: #00EEEE;
+        box-shadow: 0 0 10px #00FFFF;
+    }
+
+
+    /* Full Page Styling */
+    .level-container {
+        display: grid;
+        grid-template-columns: 6fr 3fr;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        /* Account for header and footer */
+        padding: 20px 0;
+        width: 90%;
+        margin: auto;
+        box-sizing: border-box;
+        background: rgba(20, 20, 20, 0.9);
+    }
+
+    /* Card Styling */
+    .sidebar-container {
+        background: rgba(20, 20, 20, 0.9);
+        padding: 40px;
+        border-radius: 15px;
+        height: fit-content;
+        position: sticky;
+        top: 90px;
+        border: 1px solid #00FFFF;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        transition: all 0.3s ease-in-out;
+        /* animation: fadeIn 0.8s ease-in-out; */
+    }
+
+    .prompt-card {
+        overflow-y: auto;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+        height: 100%;
+
+    }
+
+    /* Title Styling */
+    .title {
+        font-weight: bold;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        text-align: center;
+        color: #00FFFF;
+    }
+
+    /* Description */
+    .description {
+        font-size: 1.1rem;
+        color: #00EEEE;
+        margin-bottom: 25px;
+    }
+
+    /* Question Styling */
+    .question {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        gap: 5px;
+        background: rgba(20, 20, 20, 0.9);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        animation: fadeIn 0.8s ease-in-out;
+
+    }
+
+    h5 {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #00FFFF;
+    }
+
+    /* Textarea Styling */
+    textarea {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #00FFFF;
+        padding: 12px;
+        font-size: 1rem;
+        background: rgba(0, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease-in-out;
+    }
+
+    textarea:focus {
+        border-color: #00FFFF;
+        box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        outline: none;
+    }
+
+    /* Submit Button */
+    .submit-container {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .btn-primary {
+        padding: 12px 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        background: #00FFFF;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 255, 255, 0.4);
+        border: none;
+        color: black;
+        /* {% if challenge.round2_status == 'Finished' %} */
+        cursor: not-allowed;
+        /* {% endif %} */
+    }
+
+    .btn-primary:hover {
+        background: #00EEEE;
+        box-shadow: 0 0 10px #00FFFF;
+        transform: scale(1.05);
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .prompt-card {
+            width: 85%;
+            padding: 30px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+        }
+
+        .question h5 {
+            font-size: 1rem;
+        }
+
+        textarea {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+            padding: 10px 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .prompt-card {
+            width: 95%;
+            padding: 25px;
+        }
+
+        .title {
+            font-size: 1.5rem;
+        }
+
+        .question h5 {
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            font-size: 0.8rem;
+            padding: 10px;
+        }
+
+        .btn-primary {
+            font-size: 1rem;
+            padding: 10px 14px;
+        }
+    }
+
     /* Card Styling */
     .upload-card {
         background: rgba(20, 20, 20, 0.9);
-        padding: 25px; /* Reduced padding */
+        padding: 25px;
+        /* Reduced padding */
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
-        width: 60%; /* Reduced width */
-        max-width: 450px; /* Made it more compact */
+        width: 60%;
+        /* Reduced width */
+        max-width: 450px;
+        /* Made it more compact */
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         animation: fadeIn 0.8s ease-in-out;
     }
-    
+
     /* Hover Effect */
     .upload-card:hover {
         transform: scale(1.02);
         box-shadow: 0 8px 16px rgba(0, 255, 255, 0.4);
     }
-    
+
     /* Title */
     .title {
         font-weight: bold;
         margin-bottom: 15px;
-        font-size: 1.6rem; /* Slightly smaller */
+        font-size: 1.6rem;
+        /* Slightly smaller */
         color: #00FFFF;
     }
-    
+
     /* Description */
     .description {
         font-size: 1rem;
         color: #00EEEE;
         margin-bottom: 20px;
     }
-    
+
     /* Reference Image */
     .reference-img {
-        max-width: 100%;
+        width: 100%;
         height: auto;
         border-radius: 10px;
-        margin-bottom: 15px;
+        /* margin-bottom: 15px; */
         border: 2px solid #00FFFF;
         padding: 4px;
     }
-    
+
     /* Upload Box */
     .upload-box {
         margin: 15px 0;
     }
-    
+
     .form-label {
         font-weight: 600;
         color: #00FFFF;
         font-size: 0.9rem;
     }
-    
+
     /* File Input */
     .file-input {
         width: 100%;
@@ -107,18 +588,18 @@
         background: rgba(0, 255, 255, 0.1);
         color: white;
     }
-    
+
     .file-input:focus {
         border-color: #00FFFF;
         box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         outline: none;
     }
-    
+
     /* Submit Button */
     .submit-container {
         margin-top: 10px;
     }
-    
+
     .btn-primary {
         padding: 10px 18px;
         font-size: 1rem;
@@ -129,75 +610,75 @@
         box-shadow: 0 3px 6px rgba(0, 255, 255, 0.3);
         border: none;
         color: black;
-        cursor: pointer;
     }
-    
+
     .btn-primary:hover {
         background: #00EEEE;
         box-shadow: 0 0 8px #00FFFF;
         transform: scale(1.05);
     }
-    
+
     /* Fade-in Animation */
     @keyframes fadeIn {
         from {
             opacity: 0;
             transform: translateY(-20px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-    
+
     /* Responsive Design */
     @media (max-width: 768px) {
         .upload-card {
             width: 75%;
             max-width: 400px;
         }
-    
+
         .title {
             font-size: 1.4rem;
         }
-    
+
         .form-label {
             font-size: 0.85rem;
         }
-    
+
         .file-input {
             font-size: 0.85rem;
         }
-    
+
         .btn-primary {
             font-size: 0.95rem;
             padding: 8px 14px;
         }
     }
-    
+
     @media (max-width: 480px) {
         .upload-card {
             width: 85%;
             max-width: 350px;
         }
-    
+
         .title {
             font-size: 1.3rem;
         }
-    
+
         .form-label {
             font-size: 0.8rem;
         }
-    
+
         .file-input {
             font-size: 0.8rem;
             padding: 8px;
         }
-    
+
         .btn-primary {
             font-size: 0.9rem;
             padding: 8px 12px;
         }
     }
-    </style>
+</style>
 {% endblock %}

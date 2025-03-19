@@ -289,6 +289,9 @@
             </div>
             <br>
             <a href="{% url 'challenge:participate' challenge.id %}" class="register-btn">Go To Competition</a>
+            {% elif challenge.round1_status == 'Ongoing' and challenge.round2_status == 'Upcoming'%}
+            <br>
+            <a href="{% url 'challenge:participate' challenge.id %}" class="register-btn">Go To Competition</a>
             {% else %}
             <br>
             <a href="{% url 'challenge:challenge_detail' challenge.id %}" class="register-btn">Go To Competition</a>
