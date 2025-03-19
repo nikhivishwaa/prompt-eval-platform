@@ -3,8 +3,29 @@
 
 {% block content %}
 
+
 <div class="leaderboard-container">
-    <div class="leaderboard-card">
+    <div class="leaderboard-card relative">
+        <section class="absolute top-[1%] right-[1%] flex gap-4 justify-center items-center">
+            <div class="notification-bar p-[10px] {% if round == 1 %}border-1{% endif %}">
+                <a href="{% url 'challenge:get_leaderboard_r1' challenge_no %}" class="notification-link">
+
+                    <div class="notification-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="notification-title">Round 1</h3>
+                </a>
+            </div>
+            <div class="notification-bar p-[10px] {% if round == 2 %}border-1{% endif %}">
+                <a href="{% url 'challenge:get_leaderboard_r2' challenge_no %}" class="notification-link">
+
+                    <div class="notification-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="notification-title">Round 2</h3>
+                </a>
+            </div>
+        </section>
         <h2 class="title">Leaderboard</h2>
         <p class="description">Top participants based on their scores.</p>
 
@@ -42,116 +63,122 @@
 </div>
 
 <style>
-/* Full Page Styling */
-.leaderboard-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-}
-
-/* Card Styling */
-.leaderboard-card {
-    background: rgba(20, 20, 20, 0.9);
-    padding: 30px; /* Reduced padding */
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
-    min-width: 60%; /* Smaller width */
-    width: fit-content; /* More compact */
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    animation: fadeIn 0.8s ease-in-out;
-}
-
-/* Hover Effect */
-.leaderboard-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 16px rgba(0, 255, 255, 0.4);
-}
-
-/* Title */
-.title {
-    font-weight: bold;
-    margin-bottom: 15px;
-    font-size: 1.6rem;
-    color: #00FFFF;
-}
-
-/* Description */
-.description {
-    font-size: 1rem;
-    color: #00EEEE;
-    margin-bottom: 20px;
-}
-
-/* Table Styling */
-.leaderboard-table {
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.leaderboard-table thead {
-    background: #00FFFF;
-    color: black;
-}
-
-.leaderboard-table th, .leaderboard-table td {
-    padding: 10px;
-    text-align: center;
-}
-
-.leaderboard-table tbody tr:hover {
-    background: rgba(0, 255, 255, 0.1);
-}
-
-/* Fade-in Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
+    /* Full Page Styling */
+    .leaderboard-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-/* Responsive Design */
-@media (max-width: 768px) {
+    /* Card Styling */
     .leaderboard-card {
-        width: 75%;
-        max-width: 450px;
+        background: rgba(20, 20, 20, 0.9);
+        padding: 30px;
+        /* Reduced padding */
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
+        min-width: 60%;
+        /* Smaller width */
+        width: fit-content;
+        /* More compact */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        animation: fadeIn 0.8s ease-in-out;
     }
 
+    /* Hover Effect */
+    .leaderboard-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 16px rgba(0, 255, 255, 0.4);
+    }
+
+    /* Title */
     .title {
-        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 1.6rem;
+        color: #00FFFF;
     }
 
+    /* Description */
     .description {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .leaderboard-card {
-        width: 85%;
-        max-width: 400px;
+        font-size: 1rem;
+        color: #00EEEE;
+        margin-bottom: 20px;
     }
 
-    .title {
-        font-size: 1.3rem;
+    /* Table Styling */
+    .leaderboard-table {
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
-    .description {
-        font-size: 0.85rem;
+    .leaderboard-table thead {
+        background: #00FFFF;
+        color: black;
     }
 
-    .leaderboard-table th, .leaderboard-table td {
-        padding: 8px;
-        font-size: 0.9rem;
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 10px;
+        text-align: center;
     }
-}
+
+    .leaderboard-table tbody tr:hover {
+        background: rgba(0, 255, 255, 0.1);
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .leaderboard-card {
+            width: 75%;
+            max-width: 450px;
+        }
+
+        .title {
+            font-size: 1.4rem;
+        }
+
+        .description {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .leaderboard-card {
+            width: 85%;
+            max-width: 400px;
+        }
+
+        .title {
+            font-size: 1.3rem;
+        }
+
+        .description {
+            font-size: 0.85rem;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 
 {% endblock %}

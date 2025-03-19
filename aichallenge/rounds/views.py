@@ -98,7 +98,7 @@ def get_round1_leaderboard(request, challenge_no):
                                        name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name'),
                                     ).order_by('-score','-submission_time')
 
-        return render(request, 'rounds/leaderboard.html', {"challenge_no": challenge_no, "user_ranking":leaderboard})
+        return render(request, 'rounds/leaderboard.html', {"challenge_no": challenge_no, "user_ranking":leaderboard, "round":1})
     # return JsonResponse(list(leaderboard), safe=False)
     except Event.DoesNotExist:
         return HttpResponse("Invalid Challenge")
@@ -177,7 +177,7 @@ def get_round2_task_submission(request, challenge_no, task_id):
                 'score', 'plagrism_detected', 'plagrism_result', 
                 'submitted_at','last_updated')
 
-        submission = Round2Submission.objects.filter(round2_task__id=task_id, participant__user=request.use, participant__event=event).values(*fields)
+        submission = Round2Submission.objects.filter(round2_task__id=task_id, participant__user=request.user, participant__event=event).values(*fields)
         if submission.exists():
             data = submission.first()
             data['task_id'] = task_id
@@ -248,7 +248,7 @@ def get_round2_leaderboard(request, challenge_no):
                                         score = Sum('score'), 
                                         email = F('participant__user__email'),
                                         name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name')).order_by('-score','-submission_time')
-        return render(request, 'rounds/leaderboard.html', {"challenge_no": challenge_no, "user_ranking":leaderboard})
+        return render(request, 'rounds/leaderboard.html', {"challenge_no": challenge_no, "user_ranking":leaderboard, "round":2})
         # return JsonResponse(list(leaderboard), safe=False)
     except Event.DoesNotExist:
         return HttpResponse("Invalid Challenge")
