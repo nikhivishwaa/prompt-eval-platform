@@ -16,9 +16,9 @@ ADD requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
-EXPOSE 80
+EXPOSE 8080
 
 COPY aichallenge .
 
-ENTRYPOINT [ "python", "manage.py", "runserver", "0.0.0.0:80"]
+ENTRYPOINT [ "python", "manage.py", "runserver", "0.0.0.0:8080"]
 
