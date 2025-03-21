@@ -16,6 +16,8 @@ urlpatterns = [
     # other functionality
     # path('api/profile/', views.profile_api, name='profile'),
     path("profile/", views.user_profile, name="profile"),
+    path("health/", views.check_health, name="profile"),
+
     path('verifyemail/', views.verifyemail, name='verifyemail'),
     path('send_otp/', views.verification_otp, name='send_otp'),
     path('forgotpassword/', views.forgotpasswordotp, name='forgotpassword'),
