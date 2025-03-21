@@ -4,18 +4,26 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from temp.cache import get_challenge
+import datetime as dt
 
 def list_challenges(request):
+    # if not request.user.is_authenticated():
+    # events = Event.objects.filter(open_event=True, round1_end_ts__gt=dt.datetime.now(dt.timezone.utc))
     events = Event.objects.filter(open_event=True)
-
     return render(request, 'challenge/index.html', {"challenges": events})
 
+    # else:
+    #     events = Event.objects.filter
+    # return render(request, 'challenge/index.html', {"challenges": events})
 
+
+
+@login_required(login_url="login")
 def get_challenge_home(request, challenge_no):
     try:
         event = get_challenge(challenge_no)
         if not event.open_event:
-            return HttpResponse("Challenge not found")
+            return HttpResponse("Challenge not available")
         participation = Participation.objects.filter(event=event, user=request.user)
         
         if participation.exists():
@@ -39,8 +47,13 @@ def participate(request, challenge_no):
         if event.open_event == False:
             messages.error(request, "Challenge is not open for participation")
             return redirect('challenge:all_challenge')
-        if event.event_status() == "Finished":
+
+        elif event.event_status() == "Finished":
             messages.warning(request, "Challenge has already finished")
+            return redirect('challenge:all_challenge')
+
+        elif event.round2_status() == "Ongoing":
+            messages.warning(request, "You are not Allowed to Participate! Round1 has already finished")
             return redirect('challenge:all_challenge')
 
         participaint = Participation.objects.filter(event=event, user=request.user)

@@ -17,6 +17,12 @@ def get_round1(request, challenge_no):
         event = get_challenge(challenge_no)
         if event.round1_status() == "Upcoming":
             return HttpResponse("Round 1 not started yet")
+        elif event.round1_status() == "Ongoing":
+            participant = Participation.objects.filter(event=event, user=request.user).first()
+            if participant.started_at is None:
+                participant.started_at = dt.datetime.now(dt.timezone.utc)
+                participant.save()
+            # return HttpResponse("Round 1 not started yet")
         tasks = EventRound1.objects.filter(event=event)
        
         return render(request, 'rounds/round1.html', {"tasks": tasks, "challenge": event, "total_score": 100 * len(tasks)})
@@ -46,12 +52,20 @@ def get_round1_score(request, challenge_no):
         event = get_challenge(challenge_no)
         if event.round1_status() == "Upcoming":
             return JsonResponse({"error": "Round 1 not started yet"}, status=405)
-        submission = Round1Submission.objects.filter(participant__event=event, participant__user=request.user, evaluated=True)
+            
+        submission = Round1Submission.objects.filter(participant__event=event, submitted_at__lte=event.round1_end_ts, participant__user=request.user, evaluated=True)
         if submission.exists():
             data = submission.aggregate(score=Sum('score'))
             data['score'] = round(data['score'], 2)
             data['detailed_score'] = {f'task{i}': s.score for i, s in enumerate(submission, 1)}
-            # print(data)
+            
+            # update participant score if the event is ongoing
+            if event.round1_status() == "Ongoing":
+                participant = submission.first().participant
+                if participant.round1_score != data['score']:
+                    participant.round1_score = data['score']
+                    participant.save()
+
             return JsonResponse(data)
         else:
             return JsonResponse({"error":"No Submission found"}, status=400)
@@ -69,7 +83,7 @@ def get_round1_submission(request, challenge_no):
                   'relavance', 'optimization', 'evaluated',
                   'submitted_at','last_updated','score')
 
-        submission = Round1Submission.objects.filter(participant__event=event, participant__user=request.user).values(*fields)
+        submission = Round1Submission.objects.filter(participant__event=event, submitted_at__lte=event.round1_end_ts, participant__user=request.user).values(*fields)
         submission = submission.annotate(id=F('round1_task__id')).order_by('submitted_at')
         if submission.exists():
             return JsonResponse(list(submission), safe=False)
@@ -90,7 +104,7 @@ def get_round1_leaderboard(request, challenge_no):
         if event.round1_status() == "Upcoming":
             return HttpResponse("Round 1 not started yet")
 
-        submissions = Round1Submission.objects.filter(participant__event=event, evaluated=True).values('participant')
+        submissions = Round1Submission.objects.filter(participant__event=event, submitted_at__lte=event.round1_end_ts, evaluated=True).values('participant')
         leaderboard = submissions.annotate(attempted_task=Count('participant'), 
                                        submission_time = Max('submitted_at'), 
                                        score = Sum('score'), 
@@ -111,20 +125,26 @@ def submit_round1_task(request, challenge_no, task_id):
             event = get_challenge(challenge_no)
             if event.round1_status() == "Upcoming":
                 return JsonResponse({"error": "Round 1 not started yet"}, status=405)
-            elif event.round2_status() == "Finished":
+            elif event.round1_status() == "Finished":
                 return JsonResponse({"error": "Round 1 had finished!"}, status=405)
 
             prompt = request.POST['prompt']
             entry = Round1Submission.objects.filter(round1_task__id=task_id, participant__user=request.user, participant__event=event)
-            # print(entry)
+            print(entry)
             if entry.exists():
                 if entry.first().evaluated:
                     return redirect('challenge:get_task_submission_r1', challenge_no=challenge_no, task_id=task_id)
                 else:
                     submission = entry.first()
-                    submission.update(prompt=prompt)
+                    submission.prompt=prompt
+                    submission.save()
                     success = evaluate_round1(submission)
                     if success:
+                        participant = submission.participant
+                        now = dt.datetime.now(dt.timezone.utc)
+                        participant.round1_finish_time = min(now, event.round1_end_ts)
+                        participant.finished_at = min(now, event.round1_end_ts)
+                        participant.save()
                         return redirect('challenge:get_task_submission_r1', challenge_no=challenge_no, task_id=task_id)
                     else:
                         return JsonResponse({"error":"failed to evaluate"}, status=500)
@@ -136,7 +156,11 @@ def submit_round1_task(request, challenge_no, task_id):
                 submission.save()
                 success = evaluate_round1(submission)
                 if success:
-                    # return JsonResponse({"message":"submitted", "score": submission.getscore()})
+                    
+                    now = dt.datetime.now(dt.timezone.utc)
+                    participant.round1_finish_time = min(now, event.round1_end_ts)
+                    participant.finished_at = min(now, event.round1_end_ts)
+                    participant.save()
                     return redirect('challenge:get_task_submission_r1', challenge_no=challenge_no, task_id=task_id)
                 else:
                     return JsonResponse({"error":"failed to evaluate"}, status=500)
@@ -177,7 +201,7 @@ def get_round2_task_submission(request, challenge_no, task_id):
                 'score', 'plagrism_detected', 'plagrism_result', 
                 'submitted_at','last_updated')
 
-        submission = Round2Submission.objects.filter(round2_task__id=task_id, participant__user=request.user, participant__event=event).values(*fields)
+        submission = Round2Submission.objects.filter(round2_task__id=task_id, submitted_at__lte=event.round2_end_ts, participant__user=request.user, participant__event=event).values(*fields)
         if submission.exists():
             data = submission.first()
             data['task_id'] = task_id
@@ -196,12 +220,20 @@ def get_round2_score(request, challenge_no):
             return JsonResponse({"error":"Round 2 not started yet"}, status=405)
 
                 
-        submission = Round2Submission.objects.filter(participant__event=event, participant__user=request.user, evaluated=True)
+        submission = Round2Submission.objects.filter(participant__event=event, submitted_at__lte=event.round2_end_ts, participant__user=request.user, evaluated=True)
         if submission.exists():
             data = submission.aggregate(score=Sum('score'))
             data['score'] = round(data['score'], 2)
             data['detailed_score'] = {f'task{i}': s.score for i, s in enumerate(submission, 1)}
-            # print(data)
+            
+            
+            # update participant score if the event is ongoing
+            if event.round2_status() == "Ongoing":
+                participant = submission.first().participant
+                if participant.round2_score != data['score']:
+                    participant.round2_score = data['score']
+                    participant.save()
+
             return JsonResponse(data)
         else:
             return JsonResponse({"error":"No Submission found"}, status=400)
@@ -223,7 +255,7 @@ def get_round2_submission(request, challenge_no):
                 'score', 'plagrism_detected', 'plagrism_result', 
                 'submitted_at','last_updated')
 
-        submission = Round2Submission.objects.filter(participant__event=event, participant__user=request.user).values(*fields)
+        submission = Round2Submission.objects.filter(participant__event=event, submitted_at__lte=event.round1_end_ts, participant__user=request.user).values(*fields)
         submission = submission.annotate(id=F('round2_task__id')).order_by('submitted_at')
        
         if submission.exists():
@@ -242,7 +274,7 @@ def get_round2_leaderboard(request, challenge_no):
         if event.round2_status() == "Upcoming":
             return HttpResponse("Round 2 not started yet")
                 
-        submissions = Round2Submission.objects.filter(participant__event=event, evaluated=True).values('participant')
+        submissions = Round2Submission.objects.filter(participant__event=event, submitted_at__lte=event.round2_end_ts, evaluated=True).values('participant')
         leaderboard = submissions.annotate(attempted_task=Count('participant'), 
                                         submission_time = Max('submitted_at'), 
                                         score = Sum('score'), 
@@ -275,6 +307,11 @@ def submit_round2_task(request, challenge_no, task_id):
                     submission.save()
                     success = evaluate_round2(submission)
                     if success:
+                        participant = submission.participant
+                        now = dt.datetime.now(dt.timezone.utc)
+                        participant.round2_finish_time = min(now, event.round2_end_ts)
+                        participant.finished_at = min(now, event.round2_end_ts)
+                        participant.save()
                         return redirect('challenge:get_task_submission_r2', challenge_no=challenge_no, task_id=task_id)
                     else:
                         return JsonResponse({"error":"failed to evaluate"}, status=500)
@@ -286,6 +323,10 @@ def submit_round2_task(request, challenge_no, task_id):
                 submission.save()
                 success = evaluate_round2(submission)
                 if success:
+                    now = dt.datetime.now(dt.timezone.utc)
+                    participant.round2_finish_time = min(now, event.round2_end_ts)
+                    participant.finished_at = min(now, event.round2_end_ts)
+                    participant.save()
                     return redirect('challenge:get_task_submission_r2', challenge_no=challenge_no, task_id=task_id)
                 else:
                     return JsonResponse({"error":"failed to evaluate"}, status=500)
