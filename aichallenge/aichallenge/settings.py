@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 if os.environ.get('ALLOWED_HOSTS', ''):
     ALLOWED_HOSTS += os.environ.get('ALLOWED_HOSTS').split()
 
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split()
 
 # Application definition
 
