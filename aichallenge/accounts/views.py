@@ -363,4 +363,4 @@ def user_profile(request):
     return render(request, 'accounts/profile.html')
 
 def check_health(request):
-    return JsonResponse({"message": "Health is ok"})
+    return JsonResponse({"message": "Health is ok"}, status=200)
