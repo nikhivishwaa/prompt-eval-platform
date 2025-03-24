@@ -7,10 +7,10 @@ app_name = 'challenge'
 
 urlpatterns = [
     #  challenge
-    path('', views.list_challenges, name="all_challenge"),
-    path('<int:challenge_no>/', views.get_challenge_home, name='challenge_detail'),
-    path('<int:challenge_no>/participate', views.participate, name='participate'),
-    path('<int:challenge_no>/leaderboard', views.get_leaderboard, name='get_leaderboard'), 
+    path('', views.ChallengeViewSet.as_view(), name="all_challenge"),
+    path('<int:challenge_no>/', views.ChallengeDetailViewSet.as_view(), name='challenge_detail'),
+    path('<int:challenge_no>/participation', views.ParticipationDetailViewSet.as_view(), name='participate'),
+    path('<int:challenge_no>/leaderboard', views.LeaderBoardViewSet.as_view(), name='get_leaderboard'), 
     
     # round 1
     path('<int:challenge_no>/round1/', v.get_round1, name='get_task_r1'),

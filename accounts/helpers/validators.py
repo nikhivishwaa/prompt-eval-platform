@@ -9,13 +9,21 @@ def validate_phone(phone:str)->bool:
     else:
         raise ValidationError("Invalid Phone Number")
 
+def validate_college(college:str)->bool:
+    college = college.strip()
+    if len(college)>=3:
+        return college
+
+    else:
+        raise ValidationError("College name atleast 3 letters long")
+
 def validate_gender(gender:str)->bool:
     gender = gender.strip()
     if gender in ('m', 'f', 'x'):
         return gender
 
     else:
-        raise ValidationError("Invalid Gender")
+        raise ValidationError("Invalid Gender, require ('m','f','x')")
 
 def validate_email(email:str)->bool:
     email = email.strip().lower()

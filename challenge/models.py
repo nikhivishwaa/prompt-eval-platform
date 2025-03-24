@@ -15,6 +15,7 @@ class Event(models.Model):
     round2_end_ts = models.DateTimeField(null=False, blank=False)
     # round 2
     open_event = models.BooleanField(default=True, null=False, blank=False)
+    stop_entry = models.BooleanField(default=False, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False, null= False)
     last_updated = models.DateTimeField(auto_now=True, blank=False, null=False)
 
