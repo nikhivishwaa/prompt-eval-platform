@@ -54,6 +54,9 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
 class Participation(models.Model):
+    CHOICES = (('qualified', 'Qualified'),
+                ('not-qualified', 'Not Qualified')
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     enrolled_at = models.DateTimeField(auto_now=True, null=False, blank=False)
@@ -64,41 +67,19 @@ class Participation(models.Model):
     round1_score = models.FloatField(null=True, blank=True)
     round1_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round1_finish_time = models.DateTimeField(null=True, blank=True)
+    round1_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
+
     #  round 2
     round2_score = models.FloatField(null=True, blank=True)
     round2_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round2_finish_time = models.DateTimeField(null=True, blank=True)
+    round2_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
 
     class Meta:
         unique_together = ('user', 'event')
 
     def __str__(self):
         return f'{self.event} - {self.user}'
-
-    def round1_status(self):
-        if self.round1_finish_time or self.event.round1_status() == "Finished":
-            return "Finished"
-        else:
-            return "Ongoing"
-
-    def round2_status(self):
-        if self.round2_finish_time or self.event.round2_status() == "Finished":
-            return "Finished"
-        else:
-            return "Ongoing"
-
-    def event_status(self):
-        if self.finish_time or self.event.event_status() == "Finished":
-            return "Finished"
-        else:
-            return "Ongoing"
-
-    # def qualify(self):
-    #     e = self.event
-    #     if self.r1_finish_time <= e.round1_end_ts:
-    #         return "Finished"
-    #     else:
-    #         return "Ongoing"
 
     def save(self, *args, **kwargs):
         self.last_updated = dt.datetime.now(dt.timezone.utc)

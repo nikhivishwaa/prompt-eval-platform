@@ -95,6 +95,7 @@ class Round2Submission(models.Model):
     participant = models.ForeignKey(Participation, on_delete=models.CASCADE)
     round2_task = models.ForeignKey(EventRound2, on_delete=models.CASCADE)
     generated_image = models.FileField(upload_to='generated_image/', null=True, blank=True)
+    # generated_image = models.URLField(null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     last_updated = models.DateTimeField(auto_now=True)
     # scoring
