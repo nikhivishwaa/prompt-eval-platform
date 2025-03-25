@@ -79,7 +79,6 @@ class SubmissionViewSet(APIView):
                 response = {'status': 'failed','message':'participant is not provided', 'data':[]}
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
         except Round1Submission.DoesNotExist:
-            print(e)
             response = {'status': 'failed','message':'Submission not found', 'data':{}}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
@@ -110,8 +109,12 @@ class SubmissionViewSet(APIView):
                             return Response(response, status=status.HTTP_400_BAD_REQUEST)
                         
                     except Round1Submission.DoesNotExist:
-                        prompt = request.data.get('prompt').strip()
-                        if prompt < 30:
+                        prompt = request.data.get('prompt')
+                        if prompt is None:
+                            response = {'status': 'failed','message':'Prompt is not provided', 'data':{}}
+                            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                        prompt = prompt.strip()
+                        if len(prompt) < 30:
                             response = {'status': 'failed','message':'Prompt should be at least 30 characters long', 'data':{}}
                             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
