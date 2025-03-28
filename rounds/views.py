@@ -10,23 +10,23 @@ from temp.cache import get_challenge
 from rounds.serializers import Round1Serializer, Round1SubmissionSerializer, Round2Serializer, Round2SubmissionSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 
-def validate_participation(participant_id:int):
+def validate_participation(participant_id:int, user, challenge_no):
     try:
-        participant = Participation.objects.get(id=participant_id)
+        participant = Participation.objects.get(id=participant_id, user=user, event=get_challenge(challenge_no))
         return participant
     except Participation.DoesNotExist:
         return None
 
 class Round1ViewSet(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ]
     def get(self, request, challenge_no):
         try:
-            participant_id = request.data.get('participant')
+            participant_id = request.query_params.get('participant')
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() == "Upcoming":
@@ -52,6 +52,100 @@ class Round1ViewSet(APIView):
             response = {'status': 'failed','message':'Challenge not found', 'data':{}}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
+class Round1EvaluationViewSet(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    def get(self, request, challenge_no):
+        leaderboard = None
+        compute = None
+        threshold = request.query_params.get('threshold') or 0.5
+        try:
+            compute = request.query_params.get('compute')
+            event = get_challenge(challenge_no)
+            if event.round1_status() == "Upcoming":
+                response = {'status': 'failed','message':'Round 1 not started yet', 'data':[]}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+            leaderboard = Round1Submission.objects.filter(
+                                        participant__event=event, 
+                                        submitted_at__lte=event.round1_end_ts, 
+                                        evaluated=True
+                                    ).values('participant').annotate(
+                                        attempted_task=Count('participant'), 
+                                        submission_time = Max('submitted_at'), 
+                                        score = Sum('score'), 
+                                        email = F('participant__user__email'),
+                                        name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name'),
+                                    ).order_by('-score','-submission_time')
+            
+            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard}
+            return Response(response, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
+            response = {'status': 'failed','message':'Challenge not found', 'data':{}}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+        finally:
+            print('leaderboard', leaderboard)
+            if leaderboard and compute:
+                total_participant = len(leaderboard)
+                qualifying_participants = round(total_participant * threshold)
+                for idx, result in enumerate(leaderboard):
+                    participant = Participation.objects.get(id=result.get('participant'))
+                    participant.round1_score = round(result.get('score'),2)
+                    participant.round1_evaluated = True
+                    participant.round1_status = 'qualified' if idx < qualifying_participants else 'not-qualified'
+                    participant.save()
+                    print("result: ", result)
+                else:
+                    print("Leaderboard computed:", idx)
+
+class Round2EvaluationViewSet(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    def get(self, request, challenge_no):
+        leaderboard = None
+        compute = None
+        threshold = float(request.query_params.get('threshold') or 0.5)
+        try:
+            compute = request.query_params.get('compute')
+            event = get_challenge(challenge_no)
+            if event.round2_status() == "Upcoming":
+                response = {'status': 'failed','message':'Round 2 not started yet', 'data':[]}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+            leaderboard = Round2Submission.objects.filter(
+                                        participant__event=event, 
+                                        submitted_at__lte=event.round2_end_ts, 
+                                        evaluated=True
+                                    ).values('participant').annotate(
+                                        attempted_task=Count('participant'), 
+                                        submission_time = Max('submitted_at'), 
+                                        score = Sum('score'), 
+                                        email = F('participant__user__email'),
+                                        name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name'),
+                                    ).order_by('-score','-submission_time')
+            
+            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard}
+            return Response(response, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
+            response = {'status': 'failed','message':'Challenge not found', 'data':{}}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+        finally:
+            print('leaderboard', leaderboard)
+            if leaderboard and compute:
+                total_participant = len(leaderboard)
+                qualifying_participants = round(total_participant * threshold)
+                for idx, result in enumerate(leaderboard):
+                    participant = Participation.objects.get(id=result.get('participant'))
+                    participant.round2_score = round(result.get('score'),2)
+                    participant.round2_evaluated = True
+                    participant.round2_status = 'qualified' if idx < qualifying_participants else 'not-qualified'
+                    participant.save()
+                    print("result: ", result)
+                else:
+                    print("Leaderboard computed:", idx)
+
 
 class SubmissionViewSet(APIView):
     permission_classes = [IsAuthenticated]
@@ -59,7 +153,7 @@ class SubmissionViewSet(APIView):
         try:
             participant_id = request.data.get('participant')
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() == "Upcoming":
@@ -92,7 +186,7 @@ class SubmissionViewSet(APIView):
             create = False
             submission = None
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() == "Upcoming":
@@ -105,8 +199,9 @@ class SubmissionViewSet(APIView):
                     try:
                         submission = Round1Submission.objects.get(round1_task__id=task_id, participant__user=request.user, participant__event=event)
                         if submission.evaluated:
-                            response = {'status': 'failed','message':'Prompt already submitted', 'data':{}}
-                            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                            serializer = Round1SubmissionSerializer(submission)
+                            response = {'status': 'failed','message':'Prompt already submitted', 'data':serializer.data}
+                            return Response(response, status=status.HTTP_202_ACCEPTED)
                         
                     except Round1Submission.DoesNotExist:
                         prompt = request.data.get('prompt')
@@ -148,9 +243,9 @@ class Round2ViewSet(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, challenge_no):
         try:
-            participant_id = request.data.get('participant')
+            participant_id = request.query_params.get('participant')
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() != "Finished":
@@ -187,7 +282,7 @@ class SubmissionR2ViewSet(APIView):
         try:
             participant_id = request.data.get('participant')
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() != "Finished":
@@ -227,7 +322,7 @@ class SubmissionR2ViewSet(APIView):
             participant_id = request.data.get('participant')
             submission = None
             if participant_id:
-                participant = validate_participation(participant_id)
+                participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
                     event = participant.event
                     if event.round1_status() != "Finished":
@@ -247,8 +342,9 @@ class SubmissionR2ViewSet(APIView):
                     try:
                         submission = Round2Submission.objects.get(round2_task__id=task_id, participant__user=request.user, participant__event=event)
                         if submission.evaluated:
-                            response = {'status': 'failed','message':'Image already submitted', 'data':{}}
-                            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                            serializer = Round2SubmissionSerializer(submission)
+                            response = {'status': 'failed','message':'Image already submitted', 'data':serializer.data}
+                            return Response(response, status=status.HTTP_202_ACCEPTED)
                         
                     except Round2Submission.DoesNotExist:
                         image = request.FILES.get('image', None)
@@ -267,7 +363,7 @@ class SubmissionR2ViewSet(APIView):
                         participant.finished_at = min(now, event.round2_end_ts)
                         participant.save()
                 
-                        response = {'status': 'success','message':'submitted task successfully', 'data':{'evaluated': True, 'score':submission.score}}
+                        response = {'status': 'success','message':'submitted task successfully', 'data':{'evaluated': True, 'score':submission.score, 'image':submission.generated_image.url}}
                         return Response(response, status=status.HTTP_201_CREATED)
                     else:
                         response = {'status': 'failed','message':'something went wrong', 'data':{}}
