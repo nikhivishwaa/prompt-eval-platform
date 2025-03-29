@@ -10,10 +10,12 @@ class Event(models.Model):
     # round 1
     round1_start_ts = models.DateTimeField(null=False, blank=False)
     round1_end_ts = models.DateTimeField(null=False, blank=False)
+    round1_threshold = models.IntegerField(default=60, null=False, blank=False)
     # round 2
     round2_start_ts = models.DateTimeField(null=False, blank=False)
     round2_end_ts = models.DateTimeField(null=False, blank=False)
-    # round 2
+    round2_threshold = models.IntegerField(default=30, null=False, blank=False)
+    # event
     open_event = models.BooleanField(default=True, null=False, blank=False)
     stop_entry = models.BooleanField(default=False, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=False, null= False)
@@ -68,12 +70,14 @@ class Participation(models.Model):
     round1_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round1_finish_time = models.DateTimeField(null=True, blank=True)
     round1_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
+    round1_rank = models.IntegerField(null=True, blank=True)
 
     #  round 2
     round2_score = models.FloatField(null=True, blank=True)
     round2_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round2_finish_time = models.DateTimeField(null=True, blank=True)
     round2_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
+    round2_rank = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('user', 'event')

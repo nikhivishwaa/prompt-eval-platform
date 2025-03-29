@@ -57,7 +57,7 @@ class Round1EvaluationViewSet(APIView):
     def get(self, request, challenge_no):
         leaderboard = None
         compute = None
-        threshold = request.query_params.get('threshold') or 0.5
+        event = None
         try:
             compute = request.query_params.get('compute')
             event = get_challenge(challenge_no)
@@ -85,17 +85,15 @@ class Round1EvaluationViewSet(APIView):
             response = {'status': 'failed','message':'Challenge not found', 'data':{}}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
         finally:
-            print('leaderboard', leaderboard)
             if leaderboard and compute:
-                total_participant = len(leaderboard)
-                qualifying_participants = round(total_participant * threshold)
-                for idx, result in enumerate(leaderboard):
+                qualifying_participants = event.round1_threshold
+                for idx, result in enumerate(leaderboard, 1):
                     participant = Participation.objects.get(id=result.get('participant'))
                     participant.round1_score = round(result.get('score'),2)
                     participant.round1_evaluated = True
-                    participant.round1_status = 'qualified' if idx < qualifying_participants else 'not-qualified'
+                    participant.round1_rank = idx
+                    participant.round1_status = 'qualified' if idx <= qualifying_participants else 'not-qualified'
                     participant.save()
-                    print("result: ", result)
                 else:
                     print("Leaderboard computed:", idx)
 
@@ -104,7 +102,7 @@ class Round2EvaluationViewSet(APIView):
     def get(self, request, challenge_no):
         leaderboard = None
         compute = None
-        threshold = float(request.query_params.get('threshold') or 0.5)
+        event = None
         try:
             compute = request.query_params.get('compute')
             event = get_challenge(challenge_no)
@@ -132,17 +130,15 @@ class Round2EvaluationViewSet(APIView):
             response = {'status': 'failed','message':'Challenge not found', 'data':{}}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
         finally:
-            print('leaderboard', leaderboard)
             if leaderboard and compute:
-                total_participant = len(leaderboard)
-                qualifying_participants = round(total_participant * threshold)
-                for idx, result in enumerate(leaderboard):
+                qualifying_participants = event.round2_threshold
+                for idx, result in enumerate(leaderboard, 1):
                     participant = Participation.objects.get(id=result.get('participant'))
                     participant.round2_score = round(result.get('score'),2)
                     participant.round2_evaluated = True
-                    participant.round2_status = 'qualified' if idx < qualifying_participants else 'not-qualified'
+                    participant.round2_rank = idx
+                    participant.round2_status = 'qualified' if idx <= qualifying_participants else 'not-qualified'
                     participant.save()
-                    print("result: ", result)
                 else:
                     print("Leaderboard computed:", idx)
 
