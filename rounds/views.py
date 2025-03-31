@@ -71,7 +71,7 @@ class Round1EndViewSet(APIView):
                         return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
                     elif participant.round1_end_reason is None:
-                        if reason in ('tab-switch','time-up','completed'):
+                        if reason in ('tab-switch','window-exit','time-up','completed'):
                             participant.round1_end_reason = reason
                             participant.save()
                             serializer = ParticipantSerializer(participant)
@@ -110,7 +110,7 @@ class Round2EndViewSet(APIView):
                         return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
                     elif participant.round2_end_reason is None:
-                        if reason in ('time-up','completed'):
+                        if reason in ('window-exit','time-up','completed'):
                             participant.round2_end_reason = reason
                             participant.save()
                             serializer = ParticipantSerializer(participant)

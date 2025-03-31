@@ -59,7 +59,7 @@ class Participation(models.Model):
     CHOICES = (('qualified', 'Qualified'),
                 ('not-qualified', 'Not Qualified')
     )
-    ENDREASON = (('tab-switch', 'Tab Switch'),('completed', 'Completed'),('time-up','Time Up'))
+    ENDREASON = (('tab-switch', 'Tab Switch'),('window-exit','Test Window Exited'),('completed', 'Completed'),('time-up','Time Up'))
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     enrolled_at = models.DateTimeField(auto_now=True, null=False, blank=False)
