@@ -8,6 +8,7 @@ from django.db.models import Sum, Avg, Min, Max, Count, F, Value
 from django.db.models.functions import Concat
 from temp.cache import get_challenge
 from rounds.serializers import Round1Serializer, Round1SubmissionSerializer, Round2Serializer, Round2SubmissionSerializer
+from challenge.serializers import ParticipantSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -28,6 +29,9 @@ class Round1ViewSet(APIView):
             if participant_id:
                 participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
+                    if participant.round1_end_reason is not None:
+                        response = {'status': 'failed','message':'Round 1 already ended', 'data':[]}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
                     event = participant.event
                     if event.round1_status() == "Upcoming":
                         response = {'status': 'failed','message':'Round 1 not started yet', 'data':[]}
@@ -46,6 +50,84 @@ class Round1ViewSet(APIView):
                     return Response(response, status=status.HTTP_400_BAD_REQUEST)
             else:
                 response = {'status': 'failed','message':'participant is not provided', 'data':[]}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(e)
+            response = {'status': 'failed','message':'Challenge not found', 'data':{}}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+class Round1EndViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, challenge_no):
+        try:
+            participant_id = request.data.get('participant')
+            reason = request.data.get('reason')
+            if participant_id:
+                participant = validate_participation(participant_id, request.user, challenge_no)
+                if participant is not None:
+                    event = participant.event
+                    if event.round1_status() == "Upcoming":
+                        response = {'status': 'failed','message':'Round 1 not started yet', 'data':[]}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+                    elif participant.round1_end_reason is None:
+                        if reason in ('tab-switch','time-up','completed'):
+                            participant.round1_end_reason = reason
+                            participant.save()
+                            serializer = ParticipantSerializer(participant)
+            
+                            response = {'status': 'success','message':'round 1 ended for this participant', 'data':serializer.data}
+                            return Response(response, status=status.HTTP_200_OK)
+                        else:
+                            response = {'status': 'failed','message':'round 1 end reason is unknown', 'data':{}}
+                            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        response = {'status': 'failed','message':'round 1 already ended', 'data':{}}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    response = {'status': 'failed','message':'Invalid participant', 'data':{}}
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                response = {'status': 'failed','message':'participant is not provided', 'data':{}}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(e)
+            response = {'status': 'failed','message':'Challenge not found', 'data':{}}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+class Round2EndViewSet(APIView):
+    permission_classes = [IsAuthenticated, ]
+    def post(self, request, challenge_no):
+        try:
+            participant_id = request.data.get('participant')
+            reason = request.data.get('reason')
+            if participant_id:
+                participant = validate_participation(participant_id, request.user, challenge_no)
+                if participant is not None:
+                    event = participant.event
+                    if event.round2_status() == "Upcoming":
+                        response = {'status': 'failed','message':'Round 2 not started yet', 'data':[]}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+                    elif participant.round2_end_reason is None:
+                        if reason in ('time-up','completed'):
+                            participant.round2_end_reason = reason
+                            participant.save()
+                            serializer = ParticipantSerializer(participant)
+            
+                            response = {'status': 'success','message':'round 2 ended for this participant', 'data':serializer.data}
+                            return Response(response, status=status.HTTP_200_OK)
+                        else:
+                            response = {'status': 'failed','message':'round 2 end reason is unknown', 'data':{}}
+                            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        response = {'status': 'failed','message':'round 2 already ended', 'data':{}}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    response = {'status': 'failed','message':'Invalid participant', 'data':{}}
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                response = {'status': 'failed','message':'participant is not provided', 'data':{}}
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(e)
@@ -184,6 +266,10 @@ class SubmissionViewSet(APIView):
             if participant_id:
                 participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
+                    # if user's test is ended
+                    if participant.round1_end_reason is not None:
+                        response = {'status': 'failed','message':'Round 1 already ended', 'data':{}}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
                     event = participant.event
                     if event.round1_status() == "Upcoming":
                         response = {'status': 'failed','message':'Round 1 not started yet', 'data':{}}
@@ -243,6 +329,9 @@ class Round2ViewSet(APIView):
             if participant_id:
                 participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
+                    if participant.round2_end_reason is not None:
+                        response = {'status': 'failed','message':'Round 2 already ended', 'data':[]}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
                     event = participant.event
                     if event.round1_status() != "Finished":
                         response = {'status': 'failed','message':"wait till round 1 finished",'qualified': None, 'data':[]}
@@ -320,6 +409,9 @@ class SubmissionR2ViewSet(APIView):
             if participant_id:
                 participant = validate_participation(participant_id, request.user, challenge_no)
                 if participant is not None:
+                    if participant.round2_end_reason is not None:
+                        response = {'status': 'failed','message':'Round 2 already ended', 'data':[]}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
                     event = participant.event
                     if event.round1_status() != "Finished":
                         response = {'status': 'failed','message':"wait till round 1 finished",'qualified': None, 'data':{}}

@@ -56,7 +56,7 @@ class ParticipationDetailViewSet(APIView):
             participant = Participation.objects.get(event=event, user=request.user)
             serializer = ParticipantSerializer(participant)
             response = {'status': 'failed','message':'already participated', 'data':serializer.data}
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            return Response(response, status=status.HTTP_200_OK)
 
         except Participation.DoesNotExist:
             if event.round1_status() in ('Upcoming','Ongoing') and event.stop_entry is False:

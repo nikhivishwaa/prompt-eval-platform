@@ -59,6 +59,7 @@ class Participation(models.Model):
     CHOICES = (('qualified', 'Qualified'),
                 ('not-qualified', 'Not Qualified')
     )
+    ENDREASON = (('tab-switch', 'Tab Switch'),('completed', 'Completed'),('time-up','Time Up'))
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     enrolled_at = models.DateTimeField(auto_now=True, null=False, blank=False)
@@ -70,6 +71,7 @@ class Participation(models.Model):
     round1_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round1_finish_time = models.DateTimeField(null=True, blank=True)
     round1_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
+    round1_end_reason = models.CharField(max_length=20, choices=ENDREASON, blank=True, null=True)
     round1_rank = models.IntegerField(null=True, blank=True)
 
     #  round 2
@@ -77,6 +79,7 @@ class Participation(models.Model):
     round2_evaluated = models.BooleanField(default=False, null=True, blank=True)
     round2_finish_time = models.DateTimeField(null=True, blank=True)
     round2_status = models.CharField(max_length=20, choices=CHOICES, null=True, blank=True)
+    round2_end_reason = models.CharField(max_length=20, choices=ENDREASON[1:], blank=True, null=True)
     round2_rank = models.IntegerField(null=True, blank=True)
 
     class Meta:
