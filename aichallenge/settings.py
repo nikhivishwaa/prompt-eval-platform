@@ -108,12 +108,12 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #         'NAME': os.environ.get('DB_NAME'),
 #         'HOST': os.environ.get('DB_HOST'),
-#         'USER': os.environ.get('DB_USER', 'root'),
+#         'USER': os.environ.get('DB_USER'),
 #         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'PORT':os.environ.get('DB_PORT', 3306),
+#         'PORT':os.environ.get('DB_PORT', ''),
 #     }
 # }
 
