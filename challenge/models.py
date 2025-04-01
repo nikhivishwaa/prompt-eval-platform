@@ -5,8 +5,8 @@ import datetime as dt
 # Create your models here.
 class Event(models.Model):
     event_name = models.CharField(max_length=100, blank=False, null=False)
-    event_desc = models.TextField()
-    event_rules = models.TextField()
+    # event_desc = models.TextField()
+    # event_rules = models.TextField()
     # round 1
     round1_start_ts = models.DateTimeField(null=False, blank=False)
     round1_end_ts = models.DateTimeField(null=False, blank=False)
@@ -50,19 +50,15 @@ class Event(models.Model):
             return "Finished"
         else:
             return "Upcoming"
-    
-    def save(self, *args, **kwargs):
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
-        super().save(*args, **kwargs)
 
 class Participation(models.Model):
     CHOICES = (('qualified', 'Qualified'),
                 ('not-qualified', 'Not Qualified')
     )
     ENDREASON = (('tab-switch', 'Tab Switch'),('window-exit','Test Window Exited'),('completed', 'Completed'),('time-up','Time Up'))
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    enrolled_at = models.DateTimeField(auto_now=True, null=False, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='participation')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='participant')
+    enrolled_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     started_at = models.DateTimeField(blank=True, null= True)
     finished_at = models.DateTimeField(blank=True, null= True)
     last_updated = models.DateTimeField(auto_now=True, blank=False, null=False)
@@ -87,7 +83,3 @@ class Participation(models.Model):
 
     def __str__(self):
         return f'{self.event} - {self.user}'
-
-    def save(self, *args, **kwargs):
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
-        super().save(*args, **kwargs)

@@ -6,17 +6,17 @@ from .models import Task, Round1Submission, EventRound1, EventRound2, Participat
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'detail', 'task_label','active_status')
+    list_display = ('id', 'detail', 'active_status')
     search_fields = ('detail',)
-    list_filter = ('active_status','task_label')
+    list_filter = ('active_status',)
     ordering = ('id',)
     model = Task
 
 @admin.register(ImageTask)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'detail', 'task_label','active_status', 'ref_image')
+    list_display = ('id', 'detail','active_status', 'ref_image')
     search_fields = ('detail',)
-    list_filter = ('active_status','task_label')
+    list_filter = ('active_status',)
     ordering = ('id',)
     model = ImageTask
 
@@ -25,7 +25,7 @@ class TaskAdmin(admin.ModelAdmin):
 class EventRound1Admin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'title', 'task','total_participant', 'total_submission')
     search_fields = ('title',)
-    # list_filter = ('evaluated',)
+    # list_filter = ('event_name',)
     ordering = ('id',)
     model = EventRound1
 
@@ -47,7 +47,7 @@ class EventRound1Admin(admin.ModelAdmin):
 class EventRound2Admin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'title', 'task','total_participant', 'total_submission')
     search_fields = ('title',)
-    # list_filter = ('evaluated',)
+    # list_filter = ('event_name',)
     ordering = ('id',)
     model = EventRound2
 
@@ -68,14 +68,10 @@ class EventRound2Admin(admin.ModelAdmin):
 @admin.register(Round1Submission)
 class Round1SubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'user','task','evaluated', 'clarity', 'creativity', 'relavance', 'optimization', 'score', 'submitted_at')
-    search_fields = ('prompt',)
-    list_filter = ('evaluated',)
-    ordering = ('id','submitted_at',)
+    search_fields = ('event_name','user','prompt','task')
+    # list_filter = ('event_name','user','evaluated','task')
+    ordering = ('id','-submitted_at','score')
     model = Round1Submission
-
-    def score(self, obj):
-        score = 0.4 * obj.creativity + 0.3 * obj.clarity + 0.2 * obj.relavance + 0.1 * obj.optimization
-        return score
 
     def event_name(self, obj):
         return f"{obj.participant.event}"
@@ -88,13 +84,10 @@ class Round1SubmissionAdmin(admin.ModelAdmin):
 @admin.register(Round2Submission)
 class Round2SubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'user','task', 'generated_image', 'evaluated', 'clarity', 'creativity', 'relavance', 'authenticity', 'similarity', 'watermark_detection', 'score', 'plagrism_detected', 'submitted_at')
-    # search_fields = ('prompt',)
-    list_filter = ('evaluated',)
-    ordering = ('id','submitted_at',)
+    search_fields = ('event_name','user','prompt','task')
+    # list_filter = ('event_name','user','evaluated','task','plagrism')
+    ordering = ('id','-submitted_at','score')
     model = Round2Submission
-
-    def score(self, obj):
-        return obj.getscore()
 
     def event_name(self, obj):
         return f"{obj.participant.event}"

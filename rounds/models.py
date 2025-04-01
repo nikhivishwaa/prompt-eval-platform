@@ -10,15 +10,11 @@ class Task(models.Model):
     active_status = models.BooleanField(default=True, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
-    task_label = models.CharField(max_length=2, choices=LABEL, default='r1')
+    # task_label = models.CharField(max_length=2, choices=LABEL, default='r1')
 
     def __str__(self):
-        return f"#{self.id} : {self.task_label} : {self.detail}"
+        return f"#{self.id} : {self.detail}"
 
-    
-    def save(self, *args, **kwargs):
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
-        super().save(*args, **kwargs)
 
 class ImageTask(models.Model):
     LABEL = [('r1', 'Round 1'), 
@@ -28,20 +24,16 @@ class ImageTask(models.Model):
     active_status = models.BooleanField(default=True, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
-    task_label = models.CharField(max_length=2, choices=LABEL, default='r1')
+    # task_label = models.CharField(max_length=2, choices=LABEL, default='r1')
 
     def __str__(self):
-        return f"#{self.id} : {self.task_label} : {self.detail}"
+        return f"#{self.id} : {self.detail}"
 
-    
-    def save(self, *args, **kwargs):
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
-        super().save(*args, **kwargs)
 
 
 class EventRound1(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='round1_question')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='prompt_tasks')
     title = models.CharField(max_length=100)
     desc = models.TextField(null=True, blank=True)
 
@@ -52,8 +44,8 @@ class EventRound1(models.Model):
         unique_together = ['event', 'task']
 
 class EventRound2(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    task = models.ForeignKey(ImageTask, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='round2_question')
+    task = models.ForeignKey(ImageTask, on_delete=models.CASCADE, related_name='image_task')
     title = models.CharField(max_length=100)
     desc = models.TextField(null=True, blank=True)
 
@@ -64,8 +56,8 @@ class EventRound2(models.Model):
         unique_together = ['event', 'task']
 
 class Round1Submission(models.Model):
-    participant = models.ForeignKey(Participation, on_delete=models.CASCADE)
-    round1_task = models.ForeignKey(EventRound1, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participation, on_delete=models.CASCADE, related_name='round1')
+    round1_task = models.ForeignKey(EventRound1, on_delete=models.CASCADE, related_name='round1_submisson')
     prompt = models.TextField(null=False, blank=False)
     submitted_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     last_updated = models.DateTimeField(auto_now=True)
@@ -84,7 +76,6 @@ class Round1Submission(models.Model):
 
     def save(self, *args, **kwargs):
         self.score = self.getscore()
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -92,8 +83,8 @@ class Round1Submission(models.Model):
         unique_together = ['participant', 'round1_task']
 
 class Round2Submission(models.Model):
-    participant = models.ForeignKey(Participation, on_delete=models.CASCADE)
-    round2_task = models.ForeignKey(EventRound2, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participation, on_delete=models.CASCADE, related_name='round2')
+    round2_task = models.ForeignKey(EventRound2, on_delete=models.CASCADE, related_name='round2_submission')
     generated_image = models.FileField(upload_to='generated_image/', null=True, blank=True)
     # generated_image = models.URLField(null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
@@ -111,6 +102,7 @@ class Round2Submission(models.Model):
     plagrism_checked = models.BooleanField(default=False, null=False, blank=False)
     plagrism_detected = models.BooleanField(default=False, null=False, blank=False)
     plagrism_result = models.JSONField(null=True, blank=True)
+    
     def __str__(self):
         return f"{self.participant.user} : {self.round2_task} : {self.generated_image}"
 
@@ -125,12 +117,11 @@ class Round2Submission(models.Model):
                 ])
 
         if self.plagrism_detected == True:
-            score = score * 0.8
+            score = score * 0.6
         return score
 
     def save(self, *args, **kwargs):
         self.score = self.getscore()
-        self.last_updated = dt.datetime.now(dt.timezone.utc)
         super().save(*args, **kwargs)
 
     class Meta:
