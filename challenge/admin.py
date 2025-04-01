@@ -38,14 +38,14 @@ class EventAdmin(admin.ModelAdmin):
         writer = csv.writer(response)
 
         for event in queryset:
-            report = round1_report(event.id)
+            report = round2_report(event.id)
             writer.writerow(report['columns'])
             writer.writerows(report['data'])
         
             return response
 
-    generate_round1_report.short_description = "Generate CSV Report for Round1 of Selected Event"
-    generate_round2_report.short_description = "Generate CSV Report for Round2 of Selected Event"
+    generate_round1_report.short_description = "Generate Round1 Report"
+    generate_round2_report.short_description = "Generate Round2 Report"
 
 
     def event_status(self, obj):

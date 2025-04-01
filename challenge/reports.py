@@ -22,9 +22,9 @@ def round1_report(challenge_no):
 
 def round2_report(challenge_no):
     q = f"""
-    SELECT u.first_name, u.last_name, u.email, u.phone, p.id AS participant_id, p.round2_evaluated, p.round2_status, p.round1_rank, 
+    SELECT u.first_name ||' '|| u.last_name AS name, u.email, u.phone, p.id AS participant_id, p.round2_evaluated, p.round2_status, p.round2_rank, 
     s.round2_task_id AS task_id, 
-    CONCAT('{path}',s.generated_image) AS image, s.clarity, s.creativity, s.relavance AS relevance, s.watermark_detection AS watermark,
+    '{path}'||s.generated_image AS image, s.clarity, s.creativity, s.relavance AS relevance, s.watermark_detection AS watermark,
     s.similarity, s.authenticity, s.plagrism_detected AS plagiarism,
     s.score, s.submitted_at, s.evaluated AS task_evaluated  
     FROM "rounds_round2submission" AS s 
@@ -38,4 +38,4 @@ def round2_report(challenge_no):
         results = [row for row in cursor.fetchall()]  # get entries
 
     # create dictionary with column and data
-    report = {'columns':columns,'data': results}
+    return {'columns':columns,'data': results}

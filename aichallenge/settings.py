@@ -189,7 +189,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = f"{os.getenv('ENDPOINT_URL')}/static/"
-MEDIA_URL = f"{os.getenv('ENDPOINT_URL')}/media/"
+MEDIA_URL = f"{os.getenv('ENDPOINT_URL')}/{os.getenv('S3_BUCKET_NAME')}/media/"
 
 
 # # storage settings
