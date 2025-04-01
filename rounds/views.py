@@ -149,7 +149,7 @@ class Round1EvaluationViewSet(APIView):
 
             leaderboard = Round1Submission.objects.filter(
                                         participant__event=event, 
-                                        submitted_at__lte=event.round1_end_ts, 
+                                        submitted_at__lte=event.round1_end_ts + dt.timedelta(seconds=10), 
                                         evaluated=True
                                     ).values('participant').annotate(
                                         attempted_task=Count('participant'), 
@@ -159,7 +159,7 @@ class Round1EvaluationViewSet(APIView):
                                         name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name'),
                                     ).order_by('-score','-submission_time')
             
-            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard}
+            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard, 'total':leaderboard.count}
             return Response(response, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -194,7 +194,7 @@ class Round2EvaluationViewSet(APIView):
 
             leaderboard = Round2Submission.objects.filter(
                                         participant__event=event, 
-                                        submitted_at__lte=event.round2_end_ts, 
+                                        submitted_at__lte=event.round2_end_ts + dt.timedelta(seconds=10), 
                                         evaluated=True
                                     ).values('participant').annotate(
                                         attempted_task=Count('participant'), 
@@ -296,7 +296,7 @@ class SubmissionViewSet(APIView):
                             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
                         submission = Round1Submission(participant=participant, round1_task=EventRound1.objects.get(pk=task_id), prompt=prompt)
-                    
+                        submission.save()
                     # evaluate new submission or old submission is not not evaluated yet
                     success = evaluate_round1(submission)
                     if success:

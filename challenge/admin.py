@@ -1,5 +1,8 @@
 from django.contrib import admin
 from challenge.models import Event, Participation
+from django.http import HttpResponse
+from challenge.reports import round1_report, round2_report
+import csv
 
 
 # Register your models here.
@@ -11,6 +14,39 @@ class EventAdmin(admin.ModelAdmin):
     # list_filter = ('event_status','r1_status','r2_status')
     ordering = ('id',)
     model = Event
+    actions = ['generate_round1_report','generate_round2_report']
+
+    def generate_round1_report(self, request, queryset):
+        # Creating a CSV file
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="round1_report.csv"'
+
+        writer = csv.writer(response)
+
+        for event in queryset:
+            report = round1_report(event.id)
+            writer.writerow(report['columns'])
+            writer.writerows(report['data'])
+        
+            return response
+
+    def generate_round2_report(self, request, queryset):
+        # Creating a CSV file
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="round2_report.csv"'
+
+        writer = csv.writer(response)
+
+        for event in queryset:
+            report = round1_report(event.id)
+            writer.writerow(report['columns'])
+            writer.writerows(report['data'])
+        
+            return response
+
+    generate_round1_report.short_description = "Generate CSV Report for Round1 of Selected Event"
+    generate_round2_report.short_description = "Generate CSV Report for Round2 of Selected Event"
+
 
     def event_status(self, obj):
         import datetime as dt

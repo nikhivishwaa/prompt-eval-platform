@@ -72,7 +72,7 @@ class Round1Submission(models.Model):
 
     def getscore(self):
         score = 0.4 * self.creativity + 0.3 * self.clarity + 0.2 * self.relavance + 0.1 * self.optimization
-        return score
+        return round(score,2)
 
     def save(self, *args, **kwargs):
         self.score = self.getscore()
@@ -117,7 +117,7 @@ class Round2Submission(models.Model):
                 ])
 
         if self.plagrism_detected == True:
-            score = score * 0.6
+            score = round(score * 0.6,2)
         return score
 
     def save(self, *args, **kwargs):
