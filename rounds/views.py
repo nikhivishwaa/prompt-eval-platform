@@ -159,7 +159,7 @@ class Round1EvaluationViewSet(APIView):
                                         name = Concat('participant__user__first_name', Value(' '), 'participant__user__last_name'),
                                     ).order_by('-score','-submission_time')
             
-            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard, 'total':leaderboard.count}
+            response = {'status': 'success','message':'evaluted successfully', 'data':leaderboard}
             return Response(response, status=status.HTTP_200_OK)
         
         except Exception as e:
