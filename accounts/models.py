@@ -60,10 +60,7 @@ class User(AbstractUser):
         full_name = f"{self.first_name} {self.last_name}"
         return full_name.strip()
     
-#Profile Updation code 
-# class UserProfile(models.Model):
-#     user_name = models.CharField(max_length=100)
-#     user_email = models.EmailField(default='johndoe@example.com')
-#     user_age = models.IntegerField(default=0)
-#     user_bio = models.TextField()
-#     user_image = models.ImageField(upload_to='user_profile', blank=True, null=True)
+    def save(self, *args,**kwargs):
+        if not self.email.islower():
+            self.email = self.email.strip().lower()
+        super().save(*args, **kwargs)
