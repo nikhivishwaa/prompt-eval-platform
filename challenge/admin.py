@@ -1,5 +1,6 @@
 from django.contrib import admin
 from challenge.models import Event, Participation
+from rounds.models import EventRound1, EventRound2 
 from django.http import HttpResponse
 from challenge.reports import round1_report, round2_report
 import csv
@@ -9,7 +10,7 @@ import csv
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event_name', 'event_status','r1_status','round1_threshold','r2_status','round2_threshold','participants')
+    list_display = ('id', 'event_name', 'event_status','r1_status','round1_start_ts','round1_end_ts','round1_threshold','r1_total_task','r2_status','round2_start_ts','round2_end_ts','round2_threshold','r2_total_task','participants')
     search_fields = ('event_name',)
     # list_filter = ('event_status','r1_status','r2_status')
     ordering = ('id',)
@@ -82,16 +83,22 @@ class EventAdmin(admin.ModelAdmin):
         count = Participation.objects.filter(event=obj).count()
         return count
 
+    def r1_total_task(self, obj):
+        count = EventRound1.objects.filter(event=obj).count()
+        return count
+
+    def r2_total_task(self, obj):
+        count = EventRound2.objects.filter(event=obj).count()
+        return count
+
 @admin.register(Participation)
 class ParticipationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'event_name', 'user', 
+    list_display = ('id', 'event', 'user', 
                     'enrolled_at', 'round1_score','round1_rank',
                     'round1_evaluated','round1_end_reason','round1_status', 'round2_score',
                     'round2_rank','round2_evaluated','round2_end_reason','round2_status')
-    aggregate_fields = ('event_name',)
-    # list_filter = ('event_name','round1_status','round2_status','round1_end_reason','round2_end_reason')
+    
+    list_filter = ('event__event_name','round1_status','round2_status')
+    search_fields = ('user__first_name',)
     ordering = ('enrolled_at','finished_at', 'round1_score', 'round2_score','round1_rank','round2_rank',)
     model = Participation
-
-    def event_name(self, obj):
-        return obj.event.event_name

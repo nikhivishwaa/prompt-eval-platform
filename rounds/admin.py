@@ -25,7 +25,7 @@ class TaskAdmin(admin.ModelAdmin):
 class EventRound1Admin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'title', 'task','total_participant', 'total_submission')
     search_fields = ('title',)
-    # list_filter = ('event_name',)
+    list_filter = ('event__event_name',)
     ordering = ('id',)
     model = EventRound1
 
@@ -47,7 +47,8 @@ class EventRound1Admin(admin.ModelAdmin):
 class EventRound2Admin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'title', 'task','total_participant', 'total_submission')
     search_fields = ('title',)
-    # list_filter = ('event_name',)
+    list_filter = ('event__event_name',)
+    
     ordering = ('id',)
     model = EventRound2
 
@@ -69,7 +70,9 @@ class EventRound2Admin(admin.ModelAdmin):
 class Round1SubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'user','task','evaluated', 'clarity', 'creativity', 'relavance', 'optimization', 'score', 'submitted_at')
     search_fields = ('event_name','user','prompt','task')
-    # list_filter = ('event_name','user','evaluated','task')
+    list_filter = ('participant__event__event_name','evaluated')
+    search_fields = ('participant__user__first_name',)
+    
     ordering = ('id','-submitted_at','score')
     model = Round1Submission
 
@@ -85,7 +88,9 @@ class Round1SubmissionAdmin(admin.ModelAdmin):
 class Round2SubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'event_name', 'user','task', 'generated_image', 'evaluated', 'clarity', 'creativity', 'relavance', 'authenticity', 'similarity', 'watermark_detection', 'score', 'plagrism_detected', 'submitted_at')
     search_fields = ('event_name','user','prompt','task')
-    # list_filter = ('event_name','user','evaluated','task','plagrism')
+    
+    list_filter = ('participant__event__event_name','evaluated','plagrism_detected')
+    search_fields = ('participant__user__first_name',)
     ordering = ('id','-submitted_at','score')
     model = Round2Submission
 

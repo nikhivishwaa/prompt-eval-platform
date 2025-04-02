@@ -3,7 +3,7 @@ import json
 import requests
 
 def evaluate_round1(submission):
-    data = {"task":submission.round1_task.task.detail, "prompt": submission.prompt }
+    data = {"task":f"{submission.round1_task.task.detail} {submission.round1_task.desc}", "prompt": submission.prompt }
     response = requests.post(os.getenv('ROUND1_EVAL_API'), json=data)
 
     if response.status_code == 200:
@@ -35,7 +35,7 @@ def check_plagrism(image):
 
 def evaluate_round2(submission):
     data = {
-            "task":submission.round2_task.task.detail, 
+            "task":f"{submission.round2_task.task.detail} {submission.round2_task.desc}", 
             "ref_image": submission.round2_task.task.ref_image.url, 
             "generated_image": submission.generated_image.url 
         }
